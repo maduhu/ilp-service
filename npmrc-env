@@ -1,0 +1,5 @@
+registry = https://modusbox.jfrog.io/modusbox/api/npm/level1-npm
+_auth = ${NPM_TOKEN}
+email = ${NPM_EMAIL}
+always-auth = true
+
