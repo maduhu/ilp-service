@@ -1,9 +1,11 @@
 const ILP = require('ilp')
+const debug = require('ilp-service:create-ipr')
 const agent = require('superagent')
 const utils = require('../utils')
 
 module.exports = async function createIPR (config, factory, cache, ctx) {
   const { uuid, destinationAccount, expiresAt } = ctx.request.body
+  debug('call to /createIPR with body', ctx.request.body)
 
   if (!uuid) {
     throw new Error('missing JSON body field uuid')
@@ -22,6 +24,7 @@ module.exports = async function createIPR (config, factory, cache, ctx) {
     expiresAt
   })
 
+  debug('L1p-Trace-Id=' + uuid, 'created IPR', ipr)
   ctx.body = { ipr }
 
   if (cache.get(sourceUsername, expiresAt)) {
@@ -44,18 +47,26 @@ module.exports = async function createIPR (config, factory, cache, ctx) {
     }
 
     const destinationAccount = utils.addressToAccount(config, factory, transfer.to)
+
     const ipr = ILP.IPR.encodeIPR({
       packet: transfer.ilp,
       condition: transfer.executionCondition
     })
 
+    debug('L1p-Trace-Id=' + uuid, 'incoming prepare, transfer:', transfer, 'ipr:', ipr)
+    debug('L1p-Trace-Id=' + uuid, 'submitting prepare notification to backend for review')
     await agent
-      .post(config.backend_url)
+      .post(config.backend_url + '/notifications')
       .send({ uuid, ipr, destinationAccount, status: 'prepared' })
-    await fulfill
+
+    debug('L1p-Trace-Id=' + uuid, 'fulfilling transfer')
+    await fulfill()
+
     // TODO: we need ILP to pass the fulfillment into the callback
+    debug('L1p-Trace-Id=' + uuid, 'executed transfer')
+    debug('L1p-Trace-Id=' + uuid, 'submitting execute notification to backend')
     await agent
-      .post(config.backend_url)
+      .post(config.backend_url + '/notifications')
       .send({ uuid, ipr, destinationAccount, status: 'executed' })
   })
 

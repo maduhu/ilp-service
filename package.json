@@ -1,0 +1,28 @@
+{
+  "name": "ilp-service",
+  "version": "1.0.0",
+  "description": "> An ILP sending and receiving client with a REST API.",
+  "main": "index.js",
+  "dependencies": {
+    "debug": "^2.6.8",
+    "ilp": "^10.2.0",
+    "koa": "^2.2.0",
+    "koa-bodyparser": "^4.2.0",
+    "koa-router": "^7.1.1",
+    "superagent": "^3.5.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LevelOneProject/ilp-service.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LevelOneProject/ilp-service/issues"
+  },
+  "homepage": "https://github.com/LevelOneProject/ilp-service#readme"
+}
