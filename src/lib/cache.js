@@ -23,10 +23,10 @@ module.exports = class Cache {
         debug('error on cache expiry callback:', e)
       }
     }, expiry
-      ? (Date.parse(expiry) - Date.now().getTime())
+      ? (Date.parse(expiry) - Date.now())
       : CACHE_TIMEOUT)
     this._expiries[key] = expiry ||
-      new Date(Date.now().getTime() + CACHE_TIMEOUT).toISOString()
+      new Date(Date.now() + CACHE_TIMEOUT).toISOString()
   }
 
   put (key, value, expiryCallback, expiry) {

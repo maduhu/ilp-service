@@ -20,8 +20,8 @@ module.exports = async function quoteIpr (config, factory, ctx) {
   }
 
   const plugin = await factory.create({ username: config.admin.username })
-  const { packet } = ILP.IPR.decodeIPR(ipr)
-  const { amount, account } = IlpPacket.deserializeIlpPayment(packet)
+  const { packet } = ILP.IPR.decodeIPR(Buffer.from(ipr, 'base64'))
+  const { amount, account } = IlpPacket.deserializeIlpPayment(Buffer.from(packet, 'base64'))
   const connectorAddress = config.ilp_prefix +
     utils.accountToUsername(factory, connectorAccount || config.connector, ctx)
 
@@ -36,7 +36,7 @@ module.exports = async function quoteIpr (config, factory, ctx) {
   debug(traceId ? ('L1p-Trace-Id=' + traceId) : '', 'got quote', quote)
   ctx.body = {
     sourceAmount: quote.sourceAmount,
-    connectorAccount: quote.connectorAccount,
+    connectorAccount: utils.addressToAccount(config, factory, quote.connectorAccount, ctx),
     sourceExpiryDuration: quote.sourceExpiryDuration
   }
 }

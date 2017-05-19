@@ -39,7 +39,7 @@ module.exports = async function quoteSourceAmount (config, factory, ctx) {
   debug(traceId ? ('L1p-Trace-Id=' + traceId) : '', 'got quote', quote)
   ctx.body = {
     destinationAmount: quote.destinationAmount,
-    connectorAccount: quote.connectorAccount,
+    connectorAccount: utils.addressToAccount(config, factory, quote.connectorAccount, ctx),
     sourceExpiryDuration: quote.sourceExpiryDuration
   }
 }

@@ -4,7 +4,7 @@ const agent = require('superagent')
 const utils = require('../utils')
 
 module.exports = async function createIPR (config, factory, cache, ctx) {
-  const { uuid, destinationAccount, expiresAt } = ctx.request.body
+  const { uuid, destinationAccount, destinationAmount, expiresAt } = ctx.request.body
   debug('call to /createIPR with body', ctx.request.body)
 
   if (!uuid) {
@@ -13,16 +13,25 @@ module.exports = async function createIPR (config, factory, cache, ctx) {
     return ctx.throw('uuid (' + uuid + ') is an invalid uuid', 400)
   } else if (!expiresAt) {
     return ctx.throw('missing JSON body field expiresAt', 400)
+  } else if (!destinationAccount) {
+    return ctx.throw('missing JSON body field destinationAccount', 400)
+  } else if (!destinationAmount) {
+    return ctx.throw('missing JSON body field destinationAmount', 400)
+  } else if (!destinationAmount.match(utils.AMOUNT_REGEX)) {
+    return ctx.throw('destinationAmount (' + destinationAmount +
+      ') is not a valid integer amount')
   }
 
-  const destinationUsername = utils.accountToUsername(destinationAccount, ctx)
+  const destinationUsername = utils.accountToUsername(factory, destinationAccount, ctx)
   const destinationAddress = config.ilp_prefix + destinationUsername
-  const ipr = ILP.IPR.createIPR({
+  const ipr = utils.base64url(ILP.IPR.createIPR({
+    receiverSecret: Buffer.from(config.secret, 'base64'),
+    destinationAmount: destinationAmount,
     destinationAccount: destinationAddress,
     publicHeaders: { 'Payment-Id': uuid },
     disableEncryption: true,
     expiresAt
-  })
+  }))
 
   debug('L1p-Trace-Id=' + uuid, 'created IPR', ipr)
   ctx.body = { ipr }
@@ -32,8 +41,8 @@ module.exports = async function createIPR (config, factory, cache, ctx) {
   }
 
   const plugin = await factory.create({ username: destinationUsername })
-  const stopListening = ILP.IPR.listen(plugin, {
-    secret: config.secret
+  const stopListening = await ILP.IPR.listen(plugin, {
+    receiverSecret: Buffer.from(config.secret, 'base64')
   }, async function incomingPaymentCallback ({
     transfer,
     publicHeaders,
@@ -58,6 +67,7 @@ module.exports = async function createIPR (config, factory, cache, ctx) {
     await agent
       .post(config.backend_url + '/notifications')
       .send({ uuid, ipr, destinationAccount, status: 'prepared' })
+      .catch((e) => { throw new Error(e.response.error.text) })
 
     debug('L1p-Trace-Id=' + uuid, 'fulfilling transfer')
     await fulfill()

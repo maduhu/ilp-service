@@ -16,6 +16,8 @@ module.exports = async function payIPR (config, factory, ctx) {
   } else if (!sourceAmount.match(utils.AMOUNT_REGEX)) {
     return ctx.throw('sourceAmount (' + sourceAmount + ') ' +
       'is an invalid integer amount', 400)
+  } else if (!sourceAccount) {
+    return ctx.throw('missing JSON body field sourceAccount', 400)
   } else if (!ipr) {
     return ctx.throw('missing JSON body field ipr', 400)
   } else if (!ipr.match(utils.BASE64_URL_REGEX)) {
@@ -29,14 +31,14 @@ module.exports = async function payIPR (config, factory, ctx) {
     return ctx.throw('missing JSON body field connectorAccount', 400)
   }
 
-  const sourceUsername = utils.accountToUsername(sourceAccount, ctx)
+  const sourceUsername = utils.accountToUsername(factory, sourceAccount, ctx)
   const plugin = await factory.create({ username: sourceUsername })
 
-  const { packet, condition } = ILP.IPR.decodeIPR(ipr)
+  const { packet, condition } = ILP.IPR.decodeIPR(Buffer.from(ipr, 'base64'))
   const details = ILP.PSK.parsePacketAndDetails({ packet })
   const uuid = details.publicHeaders['payment-id']
   const connectorAddress = config.ilp_prefix +
-    factory.ledgerContext.accountUriToName(sourceAccount)
+    utils.accountToUsername(factory, connectorAccount, ctx)
 
   if (!uuid) {
     return ctx.throw('IPR packet (' + packet +
@@ -47,7 +49,7 @@ module.exports = async function payIPR (config, factory, ctx) {
     id: uuid,
     amount: sourceAmount,
     to: connectorAddress,
-    condition: condition,
+    executionCondition: condition,
     ilp: packet,
     expiresAt: utils.makeExpiry(sourceExpiryDuration)
   }
