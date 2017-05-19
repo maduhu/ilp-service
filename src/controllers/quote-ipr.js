@@ -12,11 +12,11 @@ module.exports = async function quoteIpr (config, factory, ctx) {
 
   // validate all parameters
   if (!ipr) {
-    throw new Error('missing query parameter ipr')
+    return ctx.throw('missing query parameter ipr', 400)
   } else if (!ipr.match(utils.BASE64_URL_REGEX)) {
-    throw new Error('ipr (' + ipr + ') contains invalid base64url.')
+    return ctx.throw('ipr (' + ipr + ') contains invalid base64url.', 400)
   } else if (!connectorAccount && !config.connector) {
-    throw new Error('missing both query parameter connectorAccount and config.connector')
+    return ctx.throw('missing both query parameter connectorAccount and config.connector', 400)
   }
 
   const plugin = factory.adminPlugin

@@ -6,7 +6,7 @@ module.exports = async function ilpAddress (config, factory, ctx) {
   debug('call /ilpAddress with', ctx.query)
 
   if (!account) {
-    throw new Error('missing query parameter account')
+    return ctx.throw('missing query parameter account', 400)
   }
 
   const address = config.ilp_prefix + utils.accountToUsername(factory, connectorAccount))

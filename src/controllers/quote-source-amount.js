@@ -9,17 +9,17 @@ module.exports = async function quoteSourceAmount (config, factory, ctx) {
 
   // validate all parameters
   if (!destinationAddress) {
-    throw new Error('missing query parameter destinationAddress')
+    return ctx.throw('missing query parameter destinationAddress', 400)
   } else if (!destinationAddress.match(utils.ILP_REGEX)) {
-    throw new Error('destinationAddress (' + destinationAddress +
-      ') is an invalid ILP address.')
+    return ctx.throw('destinationAddress (' + destinationAddress +
+      ') is an invalid ILP address.', 400)
   } else if (!sourceAmount) {
-    throw new Error('missing query parameter sourceAmount')
+    return ctx.throw('missing query parameter sourceAmount', 400)
   } else if (!sourceAmount.match(utils.AMOUNT_REGEX)) {
-    throw new Error('sourceAmount (' + sourceAmount +
-      ') is an invalid integer amount.')
+    return ctx.throw('sourceAmount (' + sourceAmount +
+      ') is an invalid integer amount.', 400)
   } else if (!connectorAccount && !config.connector) {
-    throw new Error('missing both query parameter connectorAccount and config.connector')
+    return ctx.throw('missing both query parameter connectorAccount and config.connector', 400)
   }
 
   const plugin = factory.adminPlugin

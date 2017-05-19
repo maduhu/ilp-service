@@ -12,21 +12,21 @@ module.exports = async function payIPR (config, factory, ctx) {
   debug('call /payIPR with body', ctx.request.body)
 
   if (!sourceAmount) {
-    throw new Error('missing JSON body field sourceAmount')
+    return ctx.throw('missing JSON body field sourceAmount', 400)
   } else if (!sourceAmount.match(utils.AMOUNT_REGEX) {
-    throw new Error('sourceAmount (' + sourceAmount + ') ' +
-      'is an invalid integer amount')
+    return ctx.throw('sourceAmount (' + sourceAmount + ') ' +
+      'is an invalid integer amount', 400)
   } else if (!ipr) {
-    throw new Error('missing JSON body field ipr')
+    return ctx.throw('missing JSON body field ipr', 400)
   } else if (!ipr.match(utils.BASE64_URL_REGEX)) {
-    throw new Error('ipr (' + ipr + ') contains invalid base64url.')
+    return ctx.throw('ipr (' + ipr + ') contains invalid base64url.', 400)
   } else if (!sourceExpiryDuration) {
-    throw new Error('missing JSON body field sourceExpiryDuration')
+    return ctx.throw('missing JSON body field sourceExpiryDuration', 400)
   } else if (!(+sourceExpiryDuration)) {
-    throw new Error('sourceExpiryDuration (' + sourceExpiryDuration + ')' +
-      ' must be parseable to a valid number')
+    return ctx.throw('sourceExpiryDuration (' + sourceExpiryDuration + ')' +
+      ' must be parseable to a valid number', 400)
   } else if (!connectorAccount) {
-    throw new Error('missing JSON body field connectorAccount')
+    return ctx.throw('missing JSON body field connectorAccount', 400)
   }
 
   const sourceUsername = factory.ledgerContext.accountUriToName(sourceAccount)
@@ -39,8 +39,8 @@ module.exports = async function payIPR (config, factory, ctx) {
     factory.ledgerContext.accountUriToName(sourceAccount)
 
   if (!uuid) {
-    throw new Error('IPR packet (' + packet +
-      ') PSK public headers are missing payment-id')
+    return ctx.throw('IPR packet (' + packet +
+      ') PSK public headers are missing payment-id', 400)
   }
 
   const transfer = {

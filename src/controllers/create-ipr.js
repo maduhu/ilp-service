@@ -8,11 +8,11 @@ module.exports = async function createIPR (config, factory, cache, ctx) {
   debug('call to /createIPR with body', ctx.request.body)
 
   if (!uuid) {
-    throw new Error('missing JSON body field uuid')
+    return ctx.throw('missing JSON body field uuid', 400)
   } else if (!uuid.match(utils.UUID_REGEX)) {
-    throw new Error('uuid (' + uuid + ') is an invalid uuid')
+    return ctx.throw('uuid (' + uuid + ') is an invalid uuid', 400)
   } else if (!expiresAt) {
-    throw new Error('missing JSON body field expiresAt')
+    return ctx.throw('missing JSON body field expiresAt', 400)
   }
 
   const destinationUsername = utils.accountToUsername(destinationAccount)
