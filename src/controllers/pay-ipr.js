@@ -29,7 +29,7 @@ module.exports = async function payIPR (config, factory, ctx) {
     return ctx.throw('missing JSON body field connectorAccount', 400)
   }
 
-  const sourceUsername = factory.ledgerContext.accountUriToName(sourceAccount)
+  const sourceUsername = utils.accountToUsername(sourceAccount, ctx)
   const plugin = await factory.create({ username: sourceUsername })
 
   const { packet, condition } = ILP.IPR.decodeIPR(ipr)

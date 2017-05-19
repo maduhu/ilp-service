@@ -24,9 +24,9 @@ module.exports = async function quoteSourceAmount (config, factory, ctx) {
     return ctx.throw('missing both query parameter connectorAccount and config.connector', 400)
   }
 
-  const plugin = factory.adminPlugin
+  const plugin = await factory.create({ username: config.admin.username })
   const connectorAddress = config.ilp_prefix +
-    utils.accountToUsername(factory, connectorAccount || config.connector)
+    utils.accountToUsername(factory, connectorAccount || config.connector, ctx)
 
   debug(traceId ? ('L1p-Trace-Id=' + traceId) : '',
     'quoting sourceAmount=' + sourceAmount, 'destinationAddress=' + destinationAddress)

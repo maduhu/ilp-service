@@ -1,22 +1,26 @@
+const debug = require('debug')('ilp-service:utils')
 const ILP_REGEX = /^[A-Za-z0-9\-_~.]+$/
 const ILP_PREFIX_REGEX = /^[A-Za-z0-9\-_~.]+\.$/
 const AMOUNT_REGEX = /^[1-9]\d*$/
 const BASE64_URL_REGEX = /^[A-Za-z0-9\-_]$/
 const UUID_REGEX = /^[0-9a-f]{8}\-([0-9a-f]{4}\-){3}[0-9a-f]{12}$/
 
-function accountToUsername (factory, account) {
-  const username = factory.ledgerContext.accountUriToName(account)
-  if (!username) {
-    throw new Error('account (' + account + ') cannot be parsed to an' +
-      ' ILP address with ' + factory.ledgerContext.urls.ledger)
+function accountToUsername (factory, account, ctx) {
+  try {
+    const username = factory.ledgerContext.accountUriToName(account)
+    if (!username) throw new Error('parsed username: ' + username)
+    return username
+  } catch (e) {
+    debug(e.message)
+    return ctx.throw('account (' + account + ') cannot be parsed to an' +
+      ' ILP address with ' + factory.ledgerContext.urls.account, 400)
   }
-  return username
 }
 
-function addressToAccount (config, factory, address) {
+function addressToAccount (config, factory, address, ctx) {
   const prefix = config.ilp_prefix
   if (!address.startsWith(prefix)) {
-    throw new Error('address (' + address + ') does not match' +
+    return ctx.throw('address (' + address + ') does not match' +
       ' leger prefix (' + prefix + ')')
   }
 

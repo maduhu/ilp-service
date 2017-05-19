@@ -15,7 +15,7 @@ module.exports = async function createIPR (config, factory, cache, ctx) {
     return ctx.throw('missing JSON body field expiresAt', 400)
   }
 
-  const destinationUsername = utils.accountToUsername(destinationAccount)
+  const destinationUsername = utils.accountToUsername(destinationAccount, ctx)
   const destinationAddress = config.ilp_prefix + destinationUsername
   const ipr = ILP.IPR.createIPR({
     destinationAccount: destinationAddress,
@@ -46,7 +46,7 @@ module.exports = async function createIPR (config, factory, cache, ctx) {
       throw new Error('public header Payment-Id is an invalid uuid')
     }
 
-    const destinationAccount = utils.addressToAccount(config, factory, transfer.to)
+    const destinationAccount = utils.addressToAccount(config, factory, transfer.to, ctx)
 
     const ipr = ILP.IPR.encodeIPR({
       packet: transfer.ilp,

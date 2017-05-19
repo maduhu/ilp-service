@@ -9,7 +9,7 @@ module.exports = async function ilpAddress (config, factory, ctx) {
     return ctx.throw('missing query parameter account', 400)
   }
 
-  const address = config.ilp_prefix + utils.accountToUsername(factory, account)
+  const address = config.ilp_prefix + utils.accountToUsername(factory, account, ctx)
   debug('returning', address)
 
   ctx.body = { address }
