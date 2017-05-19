@@ -1,6 +1,6 @@
 const ILP = require('ilp')
 const IlpPacket = require('ilp-packet')
-const debug = require('ilp-service')('ilp-service:quote-ipr')
+const debug = require('debug')('ilp-service:quote-ipr')
 const utils = require('../utils')
 
 module.exports = async function quoteIpr (config, factory, ctx) {

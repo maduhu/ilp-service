@@ -1,5 +1,5 @@
 const ILP = require('ilp')
-const debug = require('ilp-service:quote-source-amount')
+const debug = require('debug')('ilp-service:quote-source-amount')
 const utils = require('../utils')
 
 module.exports = async function quoteSourceAmount (config, factory, ctx) {

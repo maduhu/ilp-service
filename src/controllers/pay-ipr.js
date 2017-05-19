@@ -1,6 +1,6 @@
 const ILP = require('ilp')
 const utils = require('../utils')
-const debug = require('ilp-service:pay-ipr')
+const debug = require('debug')('ilp-service:pay-ipr')
 
 module.exports = async function payIPR (config, factory, ctx) {
   const {

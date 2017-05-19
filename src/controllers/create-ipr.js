@@ -1,5 +1,5 @@
 const ILP = require('ilp')
-const debug = require('ilp-service:create-ipr')
+const debug = require('debug')('ilp-service:create-ipr')
 const agent = require('superagent')
 const utils = require('../utils')
 

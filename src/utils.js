@@ -1,10 +1,10 @@
 const ILP_REGEX = /^[A-Za-z0-9\-_~.]+$/
-const ILP_PREFIX_REGEX = /^[A-Za-z0-9\-_~.]+.$/
+const ILP_PREFIX_REGEX = /^[A-Za-z0-9\-_~.]+\.$/
 const AMOUNT_REGEX = /^[1-9]\d*$/
-const BASE64_URL_REGEX = /^[A-Za-z0-9\-_$/
+const BASE64_URL_REGEX = /^[A-Za-z0-9\-_]$/
 const UUID_REGEX = /^[0-9a-f]{8}\-([0-9a-f]{4}\-){3}[0-9a-f]{12}$/
 
-const accountToUsername (factory, account) {
+function accountToUsername (factory, account) {
   const username = factory.ledgerContext.accountUriToName(account)
   if (!username) {
     throw new Error('account (' + account + ') cannot be parsed to an' +
@@ -13,7 +13,7 @@ const accountToUsername (factory, account) {
   return username
 }
 
-const addressToAccount (config, factory, address) {
+function addressToAccount (config, factory, address) {
   const prefix = config.ilp_prefix
   if (!address.startsWith(prefix)) {
     throw new Error('address (' + address + ') does not match' +
@@ -27,7 +27,7 @@ const addressToAccount (config, factory, address) {
   return account
 }
 
-const makeExpiry (seconds) {
+function makeExpiry (seconds) {
   const ms = new Date().getTime() + seconds * 1000
   return new Date(ms).toISOString()
 }
@@ -35,6 +35,7 @@ const makeExpiry (seconds) {
 module.exports = {
   ILP_REGEX,
   AMOUNT_REGEX,
+  ILP_PREFIX_REGEX,
   BASE64_URL_REGEX,
   accountToUsername,
   makeExpiry

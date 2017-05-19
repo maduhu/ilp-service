@@ -12,13 +12,13 @@ const payments = require('./controllers/pay-ipr')
 const createIPR = require('./controllers/create-ipr')
 const ilpAddress = require('./controllers/ilp-address')
 
-async function app (config) {
+module.exports = async function app (config) {
   if (!config.secret) {
     throw new Error('missing secret (ILP_SERVICE_SECRET)')
   } else if (!Buffer.from(config.secret, 'base64')) {
     throw new Error('secret (ILP_SERVICE_SECRET) should be base64/base64url')
   } else if (!config.ilp_prefix) {
-    throw new Error('missing ILP_SERVICE prefix (ILP_PREFIX)')
+    throw new Error('missing ILP prefix (ILP_SERVICE_PREFIX)')
   } else if (!config.ilp_prefix.match(utils.ILP_PREFIX_REGEX)) {
     throw new Error('ILP prefix (ILP_SERVICE_PREFIX) (' + config.ilp_prefix + ') ' +
       'is an invalid ILP prefix')
