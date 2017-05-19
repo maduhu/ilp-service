@@ -4,13 +4,13 @@ const agent = require('superagent')
 const utils = require('../utils')
 
 module.exports = async function createIPR (config, factory, cache, ctx) {
-  const { uuid, destinationAccount, destinationAmount, expiresAt } = ctx.request.body
+  const { paymentId, destinationAccount, destinationAmount, expiresAt } = ctx.request.body
   debug('call to /createIPR with body', ctx.request.body)
 
-  if (!uuid) {
-    return ctx.throw('missing JSON body field uuid', 400)
-  } else if (!uuid.match(utils.UUID_REGEX)) {
-    return ctx.throw('uuid (' + uuid + ') is an invalid uuid', 400)
+  if (!paymentId) {
+    return ctx.throw('missing JSON body field paymentId', 400)
+  } else if (!paymentId.match(utils.UUID_REGEX)) {
+    return ctx.throw('paymentId (' + paymentId + ') is an invalid uuid', 400)
   } else if (!expiresAt) {
     return ctx.throw('missing JSON body field expiresAt', 400)
   } else if (!destinationAccount) {
@@ -28,12 +28,12 @@ module.exports = async function createIPR (config, factory, cache, ctx) {
     receiverSecret: Buffer.from(config.secret, 'base64'),
     destinationAmount: destinationAmount,
     destinationAccount: destinationAddress,
-    publicHeaders: { 'Payment-Id': uuid },
+    publicHeaders: { 'Payment-Id': paymentId },
     disableEncryption: true,
     expiresAt
   }))
 
-  debug('L1p-Trace-Id=' + uuid, 'created IPR', ipr)
+  debug('L1p-Trace-Id=' + paymentId, 'created IPR', ipr)
   ctx.body = { ipr }
 
   if (cache.get(destinationUsername, expiresAt)) {
@@ -48,10 +48,10 @@ module.exports = async function createIPR (config, factory, cache, ctx) {
     publicHeaders,
     fulfill
   }) {
-    const uuid = publicHeaders['payment-id']
-    if (!uuid) {
+    const paymentId = publicHeaders['payment-id']
+    if (!paymentId) {
       throw new Error('missing public header Payment-Id')
-    } else if (!uuid.match(utils.UUID_REGEX)) {
+    } else if (!paymentId.match(utils.UUID_REGEX)) {
       throw new Error('public header Payment-Id is an invalid uuid')
     }
 
@@ -62,22 +62,22 @@ module.exports = async function createIPR (config, factory, cache, ctx) {
       condition: transfer.executionCondition
     })
 
-    debug('L1p-Trace-Id=' + uuid, 'incoming prepare, transfer:', transfer, 'ipr:', ipr)
-    debug('L1p-Trace-Id=' + uuid, 'submitting prepare notification to backend for review')
+    debug('L1p-Trace-Id=' + paymentId, 'incoming prepare, transfer:', transfer, 'ipr:', ipr)
+    debug('L1p-Trace-Id=' + paymentId, 'submitting prepare notification to backend for review')
     await agent
       .post(config.backend_url + '/notifications')
-      .send({ uuid, ipr, destinationAccount, status: 'prepared' })
+      .send({ paymentId, ipr, destinationAccount, status: 'prepared' })
       .catch((e) => { throw new Error(e.response.error.text) })
 
-    debug('L1p-Trace-Id=' + uuid, 'fulfilling transfer')
+    debug('L1p-Trace-Id=' + paymentId, 'fulfilling transfer')
     await fulfill()
 
     // TODO: we need ILP to pass the fulfillment into the callback
-    debug('L1p-Trace-Id=' + uuid, 'executed transfer')
-    debug('L1p-Trace-Id=' + uuid, 'submitting execute notification to backend')
+    debug('L1p-Trace-Id=' + paymentId, 'executed transfer')
+    debug('L1p-Trace-Id=' + paymentId, 'submitting execute notification to backend')
     await agent
       .post(config.backend_url + '/notifications')
-      .send({ uuid, ipr, destinationAccount, status: 'executed' })
+      .send({ paymentId, ipr, destinationAccount, status: 'executed' })
   })
 
   cache.put(destinationUsername, true, () => {

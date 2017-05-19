@@ -36,17 +36,17 @@ module.exports = async function payIPR (config, factory, ctx) {
 
   const { packet, condition } = ILP.IPR.decodeIPR(Buffer.from(ipr, 'base64'))
   const details = ILP.PSK.parsePacketAndDetails({ packet })
-  const uuid = details.publicHeaders['payment-id']
+  const paymentId = details.publicHeaders['payment-id']
   const connectorAddress = config.ilp_prefix +
     utils.accountToUsername(factory, connectorAccount, ctx)
 
-  if (!uuid) {
+  if (!paymentId) {
     return ctx.throw('IPR packet (' + packet +
       ') PSK public headers are missing payment-id', 400)
   }
 
   const transfer = {
-    id: uuid,
+    id: paymentId,
     amount: sourceAmount,
     to: connectorAddress,
     executionCondition: condition,
@@ -54,8 +54,8 @@ module.exports = async function payIPR (config, factory, ctx) {
     expiresAt: utils.makeExpiry(sourceExpiryDuration)
   }
 
-  debug('L1p-Trace-Id=' + uuid, 'parsed IPR')
-  debug('L1p-Trace-Id=' + uuid, 'sending transfer:', transfer, 'ipr:', ipr)
+  debug('L1p-Trace-Id=' + paymentId, 'parsed IPR')
+  debug('L1p-Trace-Id=' + paymentId, 'sending transfer:', transfer, 'ipr:', ipr)
   await plugin.sendTransfer(transfer)
 
   const listen = new Promise((resolve) => {
@@ -68,23 +68,23 @@ module.exports = async function payIPR (config, factory, ctx) {
     }
 
     function fulfill (transfer, fulfillment) {
-      if (transfer.id !== uuid) return
-      debug('L1p-Trace-Id=' + uuid,
+      if (transfer.id !== paymentId) return
+      debug('L1p-Trace-Id=' + paymentId,
         'outgoing transfer fulfilled with', fulfillment)
       remove()
       resolve({ status: 'executed', fulfillment })
     }
 
     function cancel (transfer) {
-      if (transfer.id !== uuid) return
-      debug('L1p-Trace-Id=' + uuid, 'outgoing transfer expired')
+      if (transfer.id !== paymentId) return
+      debug('L1p-Trace-Id=' + paymentId, 'outgoing transfer expired')
       remove()
       resolve({ status: 'expired' })
     }
 
     function reject (transfer, rejectionMessage) {
-      if (transfer.id !== uuid) return
-      debug('L1p-Trace-Id=' + uuid,
+      if (transfer.id !== paymentId) return
+      debug('L1p-Trace-Id=' + paymentId,
         'outgoing transfer rejected with', rejectionMessage)
       remove()
       resolve({ status: 'rejected', rejectionMessage })
@@ -95,10 +95,10 @@ module.exports = async function payIPR (config, factory, ctx) {
     plugin.on('outgoing_reject', reject)
   })
 
-  debug('L1p-Trace-Id=' + uuid, 'listening for transfer updates')
+  debug('L1p-Trace-Id=' + paymentId, 'listening for transfer updates')
   const result = await listen
   ctx.body = Object.assign({
     connectorAccount,
-    uuid
+    paymentId
   }, result)
 }
