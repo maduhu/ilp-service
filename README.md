@@ -3,18 +3,19 @@
 
 The `ilp-service` is designed to be used to build Interledger payments and the [Interledger Payment Request (IPR)](https://github.com/interledger/rfcs/blob/master/0011-interledger-payment-request/0011-interledger-payment-request.md) transport protocol into Application Layer protocols. For more details on the Interledger protocol suite layers, see [IL-RFC 1: Interledger Architecture](https://github.com/interledger/rfcs/blob/master/0001-interledger-architecture/0001-interledger-architecture.md).
 
+See [Notes for Application Layer Protocol Implementors](#notes-for-application-layer-protocol-implementors) for details on how this service should be used to build an end-to-end protocol for setting up payments.
+
 The sending side will use the methods:
 
-- `GET  /quoteSourceAmount`
-- `GET  /quoteIPR`
-- `POST /payIPR`
+- [`GET  /quoteSourceAmount`](#get-quotesourceamount)
+- [`GET  /quoteIPR`](#get-quoteipr)
+- [`POST /payIPR`](#post-payipr)
 
 The receiving side will use the methods:
 
-- `POST /createIPR`
-- `GET  /ilpAddress`
-- Notifications
-
+- [`POST /createIPR`](#post-createipr)
+- [`GET  /ilpAddress`](#get-ilpaddress)
+- [Backend Notifications](#backend-notifications)
 
 ## Installation
 
@@ -31,7 +32,7 @@ The `ilp-service` is configured using environment variables.
 | `ILP_SERVICE_LEDGER_ADMIN_USERNAME` | String | Admin username. Used to enable the `ilp-service` to send quote requests and transfers on behalf of DFSP account holders. |
 | `ILP_SERVICE_LEDGER_ADMIN_PASSWORD` | String | Admin password. Used to enable the `ilp-service` to send quote requests and transfers on behalf of DFSP account holders. |
 | `ILP_SERVICE_CONNECTOR_ACCOUNT` | URI | Ledger account URI of the connector used to send Interledger payments. |
-| `ILP_SERVICE_BACKEND_URI` | URI | Backend server to send notifications to. See [Notifications](#notifications). |
+| `ILP_SERVICE_BACKEND` | URI | Backend server to send notifications to. See [Backend Notifications](#backend-notifications). |
 
 **TODO:** Should the `ilp-service` be configured with a secret to use for condition generation or should it generate one?
 
@@ -147,9 +148,9 @@ Get the ILP Address for a given ledger account. **Note: This should be included 
 |---|---|---|
 | `ilpAddress` | ILP Address | The ILP Address corresponding to the account provided. This is used primarily for quoting by source amount. |
 
-## Notifications
+## Backend Notifications
 
-### POST <BACKEND_URL>/transferNotifications
+### POST <ILP_SERVICE_BACKEND>/notifications
 
 The `ilp-service` sends notifications of incoming transfers to the configured backend service.
 
@@ -172,11 +173,33 @@ When a transfer is `prepared`, the `ilp-service` will send the notification and 
 | `prepared` | Funds are on hold and the `ilp-service` is awaiting approval from the backend before fulfilling the transfer condition. The transfer will only be fulfilled if the backend responds to this notification with an HTTP 200 status code. |
 | `executed` | The incoming transfer has been executed and the `destinationAccount` has been paid. The `fulfillment` field will contain the proof used to execute the incoming transfer. |
 
-## Usage in an Application Layer Protocol
+## Notes for Application Layer Protocol Implementors
 
-**TODO**
+The `ilp-service` is designed to be used to build Interledger payments and the Interledger Payment Request (IPR) Transport Layer protocol into Application Layer protocols. This section includes some notes and considerations for implementors of Application Layer protocols using this service.
 
-- getting ILP addresses for quotes
-- making the IPR id the same as the one in the transfer
-- converting ledger amounts to Integers
+### Integer Amounts
+
+The Interledger protocol uses integer amounts denominated in the smallest unit supported by a given ledger. This makes interoperability simpler but may be unusual to developers building on top of this service.
+
+To convert a decimal amount into an Interledger integer amount, the decimal value should be shifted by the ledger's supported scale. For example, if a ledger supports a scale of 4, the amount `123.45` would be converted into the Interledger amount `1234500`.
+
+The Five Bells Ledger API includes the ledger scale in the [Ledger Metadata](https://github.com/LevelOneProject/Docs/blob/master/ILP/ledger-adapter.md#get-server-metadata).
+
+### ILP Addresses
+
+The Interledger Protocol uses [ILP Addresses](https://github.com/interledger/rfcs/blob/master/0015-ilp-addresses/0015-ilp-addresses.md) to identify ledgers and accounts in a scheme-agnostic manner.
+
+Most of the use of ILP Addresses is handled by the `ilp-service`, with one exception. Application Layer protocol implementors SHOULD include a way for a sender to get the ILP address of a receiver to enable [quoting with a fixed source amount](#get-quotesourceamount). The receiver can use the `ilp-service` to [get the ILP adddress for a given ledger account](#get-ilpaddress).
+
+### Interledger Payment Requests (IPRs)
+
+The Interledger Payment Request (IPR) includes a fixed destination amount, the destination ILP address, and payment condition. Implementors of Application Layer protocols MUST include a way for the receiver to communicate the IPR to the sender.
+
+### Complex Fees
+
+The IPR includes a fixed destination amount. The sender will get a quote from one or more connectors to determine the cost of delivering the specified amount to the receiver.
+
+If receiving DFSPs wish to implement additional fees, those can be included in the Application Layer protocol communication and deducted from the end recipient's account once transfers are executed.
+
+If sending DFSPs which to implement additional fees, those can be added to the chosen source amount or the source amount determined by quoting an IPR. The fee amount can be deducted from the sender's account when the outgoing transfer is executed.
 
