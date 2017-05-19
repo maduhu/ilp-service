@@ -46,7 +46,8 @@ module.exports = async function createIPR (config, factory, cache, ctx) {
   }, async function incomingPaymentCallback ({
     transfer,
     publicHeaders,
-    fulfill
+    fulfill,
+    fulfillment
   }) {
     const paymentId = publicHeaders['payment-id']
     if (!paymentId) {
@@ -72,12 +73,11 @@ module.exports = async function createIPR (config, factory, cache, ctx) {
     debug('L1p-Trace-Id=' + paymentId, 'fulfilling transfer')
     await fulfill()
 
-    // TODO: we need ILP to pass the fulfillment into the callback
     debug('L1p-Trace-Id=' + paymentId, 'executed transfer')
     debug('L1p-Trace-Id=' + paymentId, 'submitting execute notification to backend')
     await agent
       .post(config.backend_url + '/notifications')
-      .send({ paymentId, ipr, destinationAccount, status: 'executed' })
+      .send({ fulfillment, paymentId, ipr, destinationAccount, status: 'executed' })
   })
 
   cache.put(destinationUsername, true, () => {
