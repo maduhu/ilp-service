@@ -1,8 +1,10 @@
 const ILP = require('ilp')
+const debug = require('ilp-service:quote-source-amount')
 const utils = require('../utils')
 
 module.exports = async function quoteSourceAmount (config, factory, ctx) {
   const { destinationAddress, sourceAmount, connectorAccount } = ctx.query
+  const traceId = ctx.request.headers['l1p-trace-id']
 
   debug(traceId ? ('L1p-Trace-Id=' + traceId) : '',
     'call /quoteSourceAmount with query', ctx.query)

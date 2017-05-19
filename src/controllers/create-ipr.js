@@ -27,11 +27,11 @@ module.exports = async function createIPR (config, factory, cache, ctx) {
   debug('L1p-Trace-Id=' + uuid, 'created IPR', ipr)
   ctx.body = { ipr }
 
-  if (cache.get(sourceUsername, expiresAt)) {
+  if (cache.get(destinationUsername, expiresAt)) {
     return
   }
 
-  const plugin = await factory.create({ username: sourceUsername })
+  const plugin = await factory.create({ username: destinationUsername })
   const stopListening = ILP.IPR.listen(plugin, {
     secret: config.secret
   }, async function incomingPaymentCallback ({
@@ -70,7 +70,7 @@ module.exports = async function createIPR (config, factory, cache, ctx) {
       .send({ uuid, ipr, destinationAccount, status: 'executed' })
   })
 
-  cache.put(sourceUsername, true, () => {
+  cache.put(destinationUsername, true, () => {
     stopListening()
   })
 }

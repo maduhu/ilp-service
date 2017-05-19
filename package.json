@@ -11,9 +11,15 @@
     "koa-router": "^7.1.1",
     "superagent": "^3.5.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^3.3.1",
+    "eslint-config-standard": "^6.0.0",
+    "eslint-plugin-promise": "^2.0.1",
+    "eslint-plugin-standard": "^2.0.0"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/**/*.js"
   },
   "repository": {
     "type": "git",

@@ -13,7 +13,7 @@ module.exports = async function payIPR (config, factory, ctx) {
 
   if (!sourceAmount) {
     return ctx.throw('missing JSON body field sourceAmount', 400)
-  } else if (!sourceAmount.match(utils.AMOUNT_REGEX) {
+  } else if (!sourceAmount.match(utils.AMOUNT_REGEX)) {
     return ctx.throw('sourceAmount (' + sourceAmount + ') ' +
       'is an invalid integer amount', 400)
   } else if (!ipr) {
@@ -58,28 +58,33 @@ module.exports = async function payIPR (config, factory, ctx) {
 
   const listen = new Promise((resolve) => {
     function remove () {
-      plugin.removeListener('outgoing_fulfill', fulfill)
-      plugin.removeListener('outgoing_cancel', cancel)
-      plugin.removeListener('outgoing_reject', reject)
+      setImmediate(() => {
+        plugin.removeListener('outgoing_fulfill', fulfill)
+        plugin.removeListener('outgoing_cancel', cancel)
+        plugin.removeListener('outgoing_reject', reject)
+      })
     }
 
     function fulfill (transfer, fulfillment) {
       if (transfer.id !== uuid) return
       debug('L1p-Trace-Id=' + uuid,
         'outgoing transfer fulfilled with', fulfillment)
+      remove()
       resolve({ status: 'executed', fulfillment })
     }
 
     function cancel (transfer) {
       if (transfer.id !== uuid) return
       debug('L1p-Trace-Id=' + uuid, 'outgoing transfer expired')
-      resolve({ status: 'expired' }) 
+      remove()
+      resolve({ status: 'expired' })
     }
 
     function reject (transfer, rejectionMessage) {
       if (transfer.id !== uuid) return
       debug('L1p-Trace-Id=' + uuid,
         'outgoing transfer rejected with', rejectionMessage)
+      remove()
       resolve({ status: 'rejected', rejectionMessage })
     }
 
@@ -92,6 +97,6 @@ module.exports = async function payIPR (config, factory, ctx) {
   const result = await listen
   ctx.body = Object.assign({
     connectorAccount,
-    uuid,
+    uuid
   }, result)
 }
