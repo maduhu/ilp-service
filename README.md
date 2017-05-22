@@ -121,6 +121,7 @@ Once an IPR has been created, the `ilp-service` will listen for incoming prepare
 |---|---|---|
 | `paymentId` | UUID | Unique ID of this payment request. This will be included in the notifications about incoming transfers and should be used to correlate IPRs communicated to senders with incoming payments. |
 | `destinationAccount` | URI | Ledger account URI of the account into which the funds will be paid. |
+| `destinationAmount` | Decimal String | The requested amount, which will be paid into the `destinationAccount`. |
 | `expiresAt` | ISO Timestamp | Expiration of the payment request. Incoming transfers received after this time will be automatically rejected. |
 
 **TODO:** Would you rather pass in the absolute ISO timestamp or the relative time in seconds?
