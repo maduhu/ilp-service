@@ -1,7 +1,9 @@
+const BigNumber = require('bignumber.js')
 const debug = require('debug')('ilp-service:utils')
 const ILP_REGEX = /^[A-Za-z0-9\-_~.]+$/
 const ILP_PREFIX_REGEX = /^[A-Za-z0-9\-_~.]+\.$/
-const AMOUNT_REGEX = /^[1-9]\d*$/
+const INTEGER_REGEX = /^[1-9]\d*$/
+const AMOUNT_REGEX = /^(0\.|[1-9]\d*\.?)\d*$/
 const BASE64_URL_REGEX = /^[A-Za-z0-9\-_]*$/
 const UUID_REGEX = /^[0-9a-f]{8}\-([0-9a-f]{4}\-){3}[0-9a-f]{12}$/
 
@@ -43,6 +45,26 @@ function base64url (buffer) {
     .replace(/\//g, '_')
 }
 
+function scaleAmount (factory, amount) {
+  const scale = factory.ledgerContext.getInfo().currencyScale
+  return scaleAmountByScale(scale, amount)
+}
+
+function unscaleAmount (factory, amount) {
+  const scale = factory.ledgerContext.getInfo().currencyScale
+  return unscaleAmountByScale(scale, amount)
+}
+
+function unscaleAmountByScale (scale, amount) {
+  return scaleAmountByScale(-scale, amount)
+}
+
+function scaleAmountByScale (scale, amount) {
+  return new BigNumber(amount)
+    .shift(scale)
+    .toString()
+}
+
 module.exports = {
   ILP_REGEX,
   AMOUNT_REGEX,
@@ -51,5 +73,9 @@ module.exports = {
   accountToUsername,
   addressToAccount,
   base64url,
-  makeExpiry
+  makeExpiry,
+  scaleAmount,
+  unscaleAmount,
+  unscaleAmountByScale,
+  scaleAmountByScale
 }

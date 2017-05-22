@@ -15,7 +15,7 @@ module.exports = async function payIPR (config, factory, ctx) {
     return ctx.throw('missing JSON body field sourceAmount', 400)
   } else if (!sourceAmount.match(utils.AMOUNT_REGEX)) {
     return ctx.throw('sourceAmount (' + sourceAmount + ') ' +
-      'is an invalid integer amount', 400)
+      'is an invalid decimal amount', 400)
   } else if (!sourceAccount) {
     return ctx.throw('missing JSON body field sourceAccount', 400)
   } else if (!ipr) {
@@ -47,7 +47,7 @@ module.exports = async function payIPR (config, factory, ctx) {
 
   const transfer = {
     id: paymentId,
-    amount: sourceAmount,
+    amount: utils.scaleAmount(factory, sourceAmount),
     to: connectorAddress,
     executionCondition: condition,
     ilp: packet,

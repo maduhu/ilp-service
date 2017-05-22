@@ -26,7 +26,9 @@ module.exports = async function quoteIpr (config, factory, ctx) {
     utils.accountToUsername(factory, connectorAccount || config.connector, ctx)
 
   debug(traceId ? ('L1p-Trace-Id=' + traceId) : '',
-    'quoting destinationAmount=' + amount, 'destinationAddress=' + account)
+    'quoting destinationAmount=' + utils.unscaleAmount(factory, amount),
+    'destinationAddress=' + account)
+
   const quote = await ILP.ILQP.quote(plugin, {
     destinationAmount: amount,
     destinationAddress: account,
@@ -35,7 +37,7 @@ module.exports = async function quoteIpr (config, factory, ctx) {
 
   debug(traceId ? ('L1p-Trace-Id=' + traceId) : '', 'got quote', quote)
   ctx.body = {
-    sourceAmount: quote.sourceAmount,
+    sourceAmount: utils.unscaleAmount(factory, quote.sourceAmount),
     connectorAccount: utils.addressToAccount(config, factory, quote.connectorAccount, ctx),
     sourceExpiryDuration: quote.sourceExpiryDuration
   }
