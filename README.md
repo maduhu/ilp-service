@@ -49,16 +49,15 @@ Get a fixed source amount quote.
 | Parameter | Type | Description |
 |---|---|---|
 | `destinationAddress` | ILP Address | ILP Address for the destination. **Note: This must be communicated in the Application Layer protocol to enable the sender to request quotes with fixed source amounts.** |
-| `sourceAmount` | Integer | Amount the source account will send to the connector. **Note: This is an integer amount denominated in the smallest units supported by the source ledger.**
+| `sourceAmount` | Decimal String | Amount the source account will send to the connector, denominated in the currency of the source ledger |
 | `connectorAccount` | URI | **Optional.** Ledger account URI of a connector to send the quote request to. If one is not provided, the connector(s) provided in the `ilp-service` configuration will be used. |
-
-**TODO:** Are you okay with using integer amounts? Note that decimal amounts must be converted using the ledger's scale.
+| `destinationScale` | Integer | Scale of the amounts on the destination ledger, which can be found in the ledger's metadata. Used to format the `destinationAmount` in the return value. **Note: This must be communicated in the Application Layer protocol. If this value is incorrect, the result will be off by several orders of magnitude** |
 
 #### JSON Response
 
 | Parameter | Type | Description |
 |---|---|---|
-| `destinationAmount` | Integer | Amount the `destinationAddress` will receive. **Note: This is an integer amount denominated in the smallest units supported by the destination ledger.**|
+| `destinationAmount` | Decimal String | Amount the `destinationAddress` will receive, denominated in the currency of the destination ledger. |
 | `connectorAccount` | URI | Ledger account URI of the connector through which this payment can be sent. |
 | `sourceExpiryDuration` | Integer | Number of seconds after the payment is submitted that the outgoing transfer will expire. |
 
@@ -77,7 +76,7 @@ Get a quote for an [Interledger Payment Request (IPR)](https://github.com/interl
 
 | Parameter | Type | Description |
 |---|---|---|
-| `sourceAmount` | Integer | Amount the source amount should send to the connector. **Note: This is an integer amount denominated in the smallest units supported by the source ledger.** |
+| `sourceAmount` | Decimal String | Amount the source amount should send to the connector, denominated in the currency of the source ledger. |
 | `connectorAccount` | URI | Ledger account URI of the connector through which this payment can be sent. |
 | `sourceExpiryDuration` | Integer | Number of seconds after the payment is submitted that the outgoing transfer will expire. |
 
@@ -92,7 +91,7 @@ This method is idempotent. Submitting the same IPR multiple times will not cause
 | Parameter | Type | Description |
 |---|---|---|
 | `ipr` | Base64-URL String | Binary IPR from the receiver. |
-| `sourceAmount` | Integer | Amount the source account should send to the connector. **Note: This is an integer amount denominated in the smallest units supported by the source ledger.** |
+| `sourceAmount` | Decimal String | Amount the source account should send to the connector, denominated in the currency of the source ledger. |
 | `sourceAccount` | URI | Ledger account URI to send the transfer from. |
 | `connectorAccount` | URI | Ledger account URI of the connector through which this payment will be sent. |
 | `sourceExpiryDuration` | Integer | Number of seconds after the payment is submitted that the outgoing transfer will expire. |
@@ -178,14 +177,6 @@ When a transfer is `prepared`, the `ilp-service` will send the notification and 
 ## Notes for Application Layer Protocol Implementors
 
 The `ilp-service` is designed to be used to build Interledger payments and the Interledger Payment Request (IPR) Transport Layer protocol into Application Layer protocols. This section includes some notes and considerations for implementors of Application Layer protocols using this service.
-
-### Integer Amounts
-
-The Interledger protocol uses integer amounts denominated in the smallest unit supported by a given ledger. This makes interoperability simpler but may be unusual to developers building on top of this service.
-
-To convert a decimal amount into an Interledger integer amount, the decimal value should be shifted by the ledger's supported scale. For example, if a ledger supports a scale of 4, the amount `123.45` would be converted into the Interledger amount `1234500`.
-
-The Five Bells Ledger API includes the ledger scale in the [Ledger Metadata](https://github.com/LevelOneProject/Docs/blob/master/ILP/ledger-adapter.md#get-server-metadata).
 
 ### ILP Addresses
 
