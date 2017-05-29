@@ -33,8 +33,7 @@ module.exports = async function payIPR (config, factory, ctx) {
 
   const sourceUsername = utils.accountToUsername(factory, sourceAccount, ctx)
   const plugin = await factory.create({
-    username: sourceUsername,
-    prefix: config.ilp_prefix
+    username: sourceUsername
   })
 
   const { packet, condition } = ILP.IPR.decodeIPR(Buffer.from(ipr, 'base64'))

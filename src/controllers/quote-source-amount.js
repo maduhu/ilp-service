@@ -30,8 +30,7 @@ module.exports = async function quoteSourceAmount (config, factory, ctx) {
   }
 
   const plugin = await factory.create({
-    username: config.admin.username,
-    prefix: config.ilp_prefix
+    username: config.admin.username
   })
   const connectorAddress = config.ilp_prefix +
     utils.accountToUsername(factory, connectorAccount || config.connector, ctx)

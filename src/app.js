@@ -43,7 +43,8 @@ module.exports = async function app (config) {
   const factory = new PluginBells.Factory({
     adminUsername: config.admin.username,
     adminAccount: config.admin.account,
-    adminPassword: config.admin.password
+    adminPassword: config.admin.password,
+    prefix: config.ilp_prefix
   })
 
   debug('connecting factory')

@@ -20,8 +20,7 @@ module.exports = async function quoteIpr (config, factory, ctx) {
   }
 
   const plugin = await factory.create({
-    username: config.admin.username,
-    prefix: config.ilp_prefix
+    username: config.admin.username
   })
   const { packet } = ILP.IPR.decodeIPR(Buffer.from(ipr, 'base64'))
   const { amount, account } = IlpPacket.deserializeIlpPayment(Buffer.from(packet, 'base64'))
