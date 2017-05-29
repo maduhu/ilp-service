@@ -8,14 +8,14 @@ const generateSecret = () => {
 
 const config = {
   secret: process.env.ILP_SERVICE_SECRET || generateSecret(),
-  ilp_prefix: process.env.ILP_SERVICE_PREFIX,
-  backend_url: process.env.ILP_SERVICE_BACKEND_URL,
+  ilp_prefix: process.env.ILP_SERVICE_ILP_PREFIX,
+  backend_url: process.env.ILP_SERVICE_BACKEND,
   admin: {
     username: process.env.ILP_SERVICE_ADMIN_USERNAME,
     account: process.env.ILP_SERVICE_ADMIN_ACCOUNT,
     password: process.env.ILP_SERVICE_ADMIN_PASSWORD,
   },
-  connector: process.env.ILP_SERVICE_CONNECTOR,
+  connector: process.env.ILP_SERVICE_CONNECTOR_ACCOUNT,
   port: process.env.ILP_SERVICE_PORT || 4000,
 }
 
