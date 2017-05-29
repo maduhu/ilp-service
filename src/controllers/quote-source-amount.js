@@ -29,7 +29,10 @@ module.exports = async function quoteSourceAmount (config, factory, ctx) {
       ') is an invalid integer.', 400)
   }
 
-  const plugin = await factory.create({ username: config.admin.username })
+  const plugin = await factory.create({
+    username: config.admin.username,
+    prefix: config.ilp_prefix
+  })
   const connectorAddress = config.ilp_prefix +
     utils.accountToUsername(factory, connectorAccount || config.connector, ctx)
 

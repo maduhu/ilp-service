@@ -19,7 +19,10 @@ module.exports = async function quoteIpr (config, factory, ctx) {
     return ctx.throw('missing both query parameter connectorAccount and config.connector', 400)
   }
 
-  const plugin = await factory.create({ username: config.admin.username })
+  const plugin = await factory.create({
+    username: config.admin.username,
+    prefix: config.ilp_prefix
+  })
   const { packet } = ILP.IPR.decodeIPR(Buffer.from(ipr, 'base64'))
   const { amount, account } = IlpPacket.deserializeIlpPayment(Buffer.from(packet, 'base64'))
   const connectorAddress = config.ilp_prefix +
