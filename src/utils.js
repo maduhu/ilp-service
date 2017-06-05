@@ -43,6 +43,7 @@ function base64url (buffer) {
     .toString('base64')
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
+    .replace(/=/g, '')
 }
 
 function scaleAmount (factory, amount) {
@@ -68,6 +69,7 @@ function scaleAmountByScale (scale, amount) {
 module.exports = {
   ILP_REGEX,
   AMOUNT_REGEX,
+  INTEGER_REGEX,
   ILP_PREFIX_REGEX,
   BASE64_URL_REGEX,
   accountToUsername,

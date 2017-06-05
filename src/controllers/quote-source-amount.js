@@ -23,7 +23,7 @@ module.exports = async function quoteSourceAmount (config, factory, ctx) {
   } else if (!connectorAccount && !config.connector) {
     return ctx.throw('missing both query parameter connectorAccount and config.connector', 400)
   } else if (!destinationScale) {
-    return ctx.throw('missing query parameter destinationScale')
+    return ctx.throw('missing query parameter destinationScale', 400)
   } else if (!destinationScale.match(utils.INTEGER_REGEX)) {
     return ctx.throw('destinationScale (' + destinationScale +
       ') is an invalid integer.', 400)
