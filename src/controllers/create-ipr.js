@@ -19,7 +19,7 @@ module.exports = async function createIPR (config, factory, cache, ctx) {
     return ctx.throw('missing JSON body field destinationAmount', 400)
   } else if (!destinationAmount.match(utils.AMOUNT_REGEX)) {
     return ctx.throw('destinationAmount (' + destinationAmount +
-      ') is an invalid decimal amount')
+      ') is an invalid decimal amount', 400)
   }
 
   const destinationUsername = utils.accountToUsername(factory, destinationAccount, ctx)

@@ -72,6 +72,7 @@ module.exports = {
   INTEGER_REGEX,
   ILP_PREFIX_REGEX,
   BASE64_URL_REGEX,
+  UUID_REGEX,
   accountToUsername,
   addressToAccount,
   base64url,
