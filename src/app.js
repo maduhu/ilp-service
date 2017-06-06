@@ -34,12 +34,23 @@ module.exports = async function app (config) {
     throw new Error('missing admin username (ILP_SERVICE_ADMIN_ACCOUNT)')
   } else if (!config.port) {
     throw new Error('missing config port')
+  } else if (!config.connector.account) {
+    throw new Error('missing connector account (ILP_SERVICE_RECEIVER_CONNECTOR_ACCOUNT)')
+  } else if (!config.connector.password) {
+    throw new Error('missing connector password (ILP_SERVICE_RECEIVER_CONNECTOR_PASSWORD)')
+  } else if (!config.connector.address) {
+    throw new Error('missing connector ILP address (ILP_SERVICE_LEDGER_CONNECTOR_ADDRESS)')
   }
 
   const server = new Koa()
   const router = Router()
   const parser = BodyParser()
   const cache = new Cache()
+  const connector = new PluginBells({
+    account: config.connector.account,
+    password: config.connector.password
+  })
+
   const factory = new PluginBells.Factory({
     adminUsername: config.admin.username,
     adminAccount: config.admin.account,
@@ -56,7 +67,7 @@ module.exports = async function app (config) {
   router.get('/ilpAddress', ilpAddress.bind(null, config, factory))
 
   router.post('/payIPR', payments.bind(null, config, factory))
-  router.post('/createIPR', createIPR.bind(null, config, factory, cache))
+  router.post('/createIPR', createIPR.bind(null, config, factory, cache, connector))
 
   server
     .use(parser)

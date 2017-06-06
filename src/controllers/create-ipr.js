@@ -3,7 +3,7 @@ const debug = require('debug')('ilp-service:create-ipr')
 const agent = require('superagent')
 const utils = require('../utils')
 
-module.exports = async function createIPR (config, factory, cache, ctx) {
+module.exports = async function createIPR (config, factory, cache, connector, ctx) {
   const { paymentId, destinationAccount, destinationAmount, expiresAt } = ctx.request.body
   debug('call to /createIPR with body', ctx.request.body)
 
@@ -72,7 +72,12 @@ module.exports = async function createIPR (config, factory, cache, ctx) {
       .send({ paymentId, ipr, destinationAccount, status: 'prepared' })
       .catch((e) => { throw new Error(e.response.error.text) })
 
-    debug('L1p-Trace-Id=' + paymentId, 'fulfilling transfer')
+    if (transfer.from.startsWith(config.receiverConnector.address)) {
+      debug('L1p-Trace-Id=' + paymentId, 'fulfilling connector source transfer')
+      await connector.fulfillCondition(transfer.id, fulfillment)
+    }
+
+    debug('L1p-Trace-Id=' + paymentId, 'fulfilling destination transfer')
     await fulfill()
 
     debug('L1p-Trace-Id=' + paymentId, 'executed transfer')
