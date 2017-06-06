@@ -4,6 +4,7 @@ const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 const assert = chai.assert
+const nock = require('nock')
 
 const ILP = require('ilp')
 const utils = require('../src/utils')
@@ -15,18 +16,21 @@ describe('/createIpr', () => {
   beforeEach(function () {
     this.factory = new MockFactory()
     this.cache = {}
+    this.cache.get = () => false
+    this.cache.put = () => {}
     this.ctx = new MockCtx()
     this.config = {
       ilp_prefix: 'example.red.',
       admin: { username: 'admin' },
       receiverConnector: { address: 'example.blue.connector' },
-      secret: Buffer.from('secret')
+      secret: Buffer.from('secret'),
+      backend_url: 'http://example.com/backend'
     }
-    this.connnector = {}
+    this.connector = {}
     this.ctx.request.body = {
       paymentId: 'be569853-5ef1-4153-bf17-64477a534f5b',
       destinationAmount: '1000',
-      destinationAccount: 'example.blue.bob',
+      destinationAccount: 'http://example.com/accounts/alice',
       expiresAt: new Date(Date.now() + 10000).toISOString()
     }
   })
@@ -91,5 +95,89 @@ describe('/createIpr', () => {
 
     assert.isString(this.ctx.body.ipr)
     assert.match(this.ctx.body.ipr, /^[A-Za-z\-_0-9]+$/)
+  })
+
+  it('should fulfill an incoming transfer', async function () {
+    // one for the prepare
+    nock('http://example.com')
+      .post('/backend/notifications')
+      .reply(200)
+
+    // one for the fulfill
+    nock('http://example.com')
+      .post('/backend/notifications')
+      .reply(200)
+
+    this.factory.plugin.getAccount = () => 'example.red.alice'
+    await createIpr(this.config, this.factory, this.cache, this.connector, this.ctx)
+
+    const parsed = ILP.IPR.decodeIPR(Buffer.from(this.ctx.body.ipr, 'base64'))
+
+    this.factory.plugin.getAccount = () => 'example.red.alice'
+    this.factory.plugin.emit('incoming_prepare', {
+      to: 'example.red.alice',
+      from: 'exmample.red.connie',
+      amount: '10000000',
+      ilp: parsed.packet,
+      executionCondition: parsed.condition
+    })
+
+    const fulfilled = new Promise((resolve) => {
+      this.factory.plugin.fulfillCondition = () => {
+        resolve()
+        return Promise.resolve()
+      }
+    })
+
+    await fulfilled
+  })
+
+  it('should fulfill connector source transfer first', async function () {
+    // one for the prepare
+    nock('http://example.com')
+      .post('/backend/notifications')
+      .reply(200)
+
+    // one for the fulfill
+    nock('http://example.com')
+      .post('/backend/notifications')
+      .reply(200)
+
+    this.config.receiverConnector.address = 'example.red.connie'
+    this.factory.plugin.getAccount = () => 'example.red.alice'
+    await createIpr(this.config, this.factory, this.cache, this.connector, this.ctx)
+
+    const parsed = ILP.IPR.decodeIPR(Buffer.from(this.ctx.body.ipr, 'base64'))
+
+    this.factory.plugin.getAccount = () => 'example.red.alice'
+    this.factory.plugin.emit('incoming_prepare', {
+      to: 'example.red.alice',
+      from: 'example.red.connie',
+      amount: '10000000',
+      ilp: parsed.packet,
+      executionCondition: parsed.condition
+    })
+
+    let state = 'nobody fulfilled'
+    const connectorFulfilled = new Promise((resolve, reject) => {
+      if (state !== 'nobody fulfilled') return reject(state)
+      state = 'connector fulfilled'
+      this.connector.fulfillCondition = () => {
+        resolve()
+        return Promise.resolve()
+      }
+    })
+
+    const fulfilled = new Promise((resolve, reject) => {
+      if (state !== 'connector fulfilled') return reject(state)
+      state = 'plugin fulfilled'
+      this.factory.plugin.fulfillCondition = () => {
+        resolve()
+        return Promise.resolve()
+      }
+    })
+
+    await connectorFulfilled
+    await fulfilled
   })
 })

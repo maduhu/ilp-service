@@ -41,7 +41,7 @@ module.exports = async function createIPR (config, factory, cache, connector, ct
   }
 
   const plugin = await factory.create({
-    username: config.admin.username
+    username: destinationUsername
   })
   const stopListening = await ILP.IPR.listen(plugin, {
     receiverSecret: Buffer.from(config.secret, 'base64')

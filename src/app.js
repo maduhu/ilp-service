@@ -20,7 +20,7 @@ module.exports = async function app (config) {
   } else if (!config.ilp_prefix) {
     throw new Error('missing ILP prefix (ILP_SERVICE_PREFIX)')
   } else if (!config.ilp_prefix.match(utils.ILP_PREFIX_REGEX)) {
-    throw new Error('ILP prefix (ILP_SERVICE_PREFIX) (' + config.ilp_prefix + ') ' +
+    throw new Error('ILP prefix (ILP_SERVICE_ILP_PREFIX) (' + config.ilp_prefix + ') ' +
       'is an invalid ILP prefix')
   } else if (!config.backend_url) {
     throw new Error('missing backend URL (ILP_SERVICE_BACKEND_URL)')
@@ -34,11 +34,11 @@ module.exports = async function app (config) {
     throw new Error('missing admin username (ILP_SERVICE_ADMIN_ACCOUNT)')
   } else if (!config.port) {
     throw new Error('missing config port')
-  } else if (!config.connector.account) {
+  } else if (!config.receiverConnector.account) {
     throw new Error('missing connector account (ILP_SERVICE_RECEIVER_CONNECTOR_ACCOUNT)')
-  } else if (!config.connector.password) {
+  } else if (!config.receiverConnector.password) {
     throw new Error('missing connector password (ILP_SERVICE_RECEIVER_CONNECTOR_PASSWORD)')
-  } else if (!config.connector.address) {
+  } else if (!config.receiverConnector.address) {
     throw new Error('missing connector ILP address (ILP_SERVICE_LEDGER_CONNECTOR_ADDRESS)')
   }
 
@@ -47,8 +47,8 @@ module.exports = async function app (config) {
   const parser = BodyParser()
   const cache = new Cache()
   const connector = new PluginBells({
-    account: config.connector.account,
-    password: config.connector.password
+    account: config.receiverConnector.account,
+    password: config.receiverConnector.password
   })
 
   const factory = new PluginBells.Factory({

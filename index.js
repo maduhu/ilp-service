@@ -9,11 +9,11 @@ const generateSecret = () => {
 const config = {
   secret: process.env.ILP_SERVICE_SECRET || generateSecret(),
   ilp_prefix: process.env.ILP_SERVICE_ILP_PREFIX,
-  backend_url: process.env.ILP_SERVICE_BACKEND,
+  backend_url: process.env.ILP_SERVICE_BACKEND_URL,
   admin: {
-    username: process.env.ILP_SERVICE_LEDGER_ADMIN_USERNAME,
-    account: process.env.ILP_SERVICE_LEDGER_ADMIN_ACCOUNT,
-    password: process.env.ILP_SERVICE_LEDGER_ADMIN_PASSWORD,
+    username: process.env.ILP_SERVICE_ADMIN_USERNAME,
+    account: process.env.ILP_SERVICE_ADMIN_ACCOUNT,
+    password: process.env.ILP_SERVICE_ADMIN_PASSWORD,
   },
   receiverConnector: {
     address: process.env.ILP_SERVICE_LEDGER_CONNECTOR_ADDRESS,
