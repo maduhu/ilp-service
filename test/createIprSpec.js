@@ -180,4 +180,42 @@ describe('/createIpr', () => {
     await connectorFulfilled
     await fulfilled
   })
+
+  it('should not fulfill receiver transfer if connector fails', async function () {
+    // one for the prepare
+    nock('http://example.com')
+      .post('/backend/notifications')
+      .reply(200)
+
+    this.config.receiverConnector.address = 'example.red.connie'
+    this.factory.plugin.getAccount = () => 'example.red.alice'
+    await createIpr(this.config, this.factory, this.cache, this.connector, this.ctx)
+
+    const parsed = ILP.IPR.decodeIPR(Buffer.from(this.ctx.body.ipr, 'base64'))
+
+    this.connector.fulfillCondition = () => {
+      return Promise.reject(new Error('could not fulfill!'))
+    }
+
+    const receiverRejected = new Promise((resolve, reject) => {
+      this.factory.plugin.fulfillCondition = () => {
+        reject(new Error('should not fulfill destination'))
+      }
+      this.factory.plugin.rejectIncomingTransfer = () => {
+        resolve()
+        return Promise.resolve()
+      }
+    })
+
+    this.factory.plugin.getAccount = () => 'example.red.alice'
+    this.factory.plugin.emit('incoming_prepare', {
+      to: 'example.red.alice',
+      from: 'example.red.connie',
+      amount: '10000000',
+      ilp: parsed.packet,
+      executionCondition: parsed.condition
+    })
+
+    await receiverRejected
+  })
 })
