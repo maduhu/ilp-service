@@ -21,12 +21,12 @@ describe('/quoteIpr', () => {
     }
     this.ipr = utils.base64url(ILP.IPR.createIPR({
       destinationAmount: '1000',
-      destinationAccount: 'example.blue.bob',
+      destinationAccount: 'http://example.com/accounts/bob',
       receiverSecret: Buffer.from('secret')
     }))
     this.ctx.query = {
       ipr: this.ipr,
-      connectorAccount: 'example.red.connie'
+      connectorAccount: 'http://example.com/accounts/connie'
     }
   })
 
@@ -74,7 +74,7 @@ describe('/quoteIpr', () => {
   it('should quote to connector account', async function () {
     this.factory.plugin.sendMessage = (msg) => {
       assert.equal(msg.ledger, 'example.red.')
-      assert.equal(msg.to, 'example.red.alice')
+      assert.equal(msg.to, 'example.red.connie')
       assert.equal(msg.data.method, 'quote_request')
       setImmediate(() => {
         this.factory.plugin.emit('incoming_message', {

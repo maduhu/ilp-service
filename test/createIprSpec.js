@@ -22,7 +22,7 @@ describe('/createIpr', () => {
     this.config = {
       ilp_prefix: 'example.red.',
       admin: { username: 'admin' },
-      receiverConnector: { address: 'example.blue.connector' },
+      connector: 'http://example.com/accounts/connie',
       secret: Buffer.from('secret'),
       backend_url: 'http://example.com/backend'
     }
@@ -143,7 +143,6 @@ describe('/createIpr', () => {
       .post('/backend/notifications')
       .reply(200)
 
-    this.config.receiverConnector.address = 'example.red.connie'
     this.factory.plugin.getAccount = () => 'example.red.alice'
     await createIpr(this.config, this.factory, this.cache, this.connector, this.ctx)
 
@@ -187,7 +186,6 @@ describe('/createIpr', () => {
       .post('/backend/notifications')
       .reply(200)
 
-    this.config.receiverConnector.address = 'example.red.connie'
     this.factory.plugin.getAccount = () => 'example.red.alice'
     await createIpr(this.config, this.factory, this.cache, this.connector, this.ctx)
 

@@ -24,6 +24,9 @@ module.exports = async function createIPR (config, factory, cache, connector, ct
 
   const destinationUsername = utils.accountToUsername(factory, destinationAccount, ctx)
   const destinationAddress = config.ilp_prefix + destinationUsername
+  const connectorAddress = config.ilp_prefix +
+    utils.accountToUsername(factory, config.connector, ctx)
+
   const ipr = utils.base64url(ILP.IPR.createIPR({
     receiverSecret: Buffer.from(config.secret, 'base64'),
     destinationAmount: utils.scaleAmount(factory, destinationAmount),
@@ -72,7 +75,7 @@ module.exports = async function createIPR (config, factory, cache, connector, ct
       .send({ paymentId, ipr, destinationAccount, status: 'prepared' })
       .catch((e) => { throw new Error(e.response.error.text) })
 
-    if (transfer.from.startsWith(config.receiverConnector.address)) {
+    if (transfer.from.startsWith(connectorAddress)) {
       debug('L1p-Trace-Id=' + paymentId, 'fulfilling connector source transfer')
       await connector.fulfillCondition(transfer.id, fulfillment)
     }

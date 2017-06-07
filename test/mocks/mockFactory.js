@@ -5,7 +5,7 @@ module.exports = class MockFactory {
   constructor (opts) {
     this.ledgerContext = {}
     this.ledgerContext.accountUriToName = function (account) {
-      if (account) return 'alice'
+      if (account) return account.split('/').slice(-1)[0]
     }
 
     const info = {

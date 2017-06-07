@@ -15,10 +15,9 @@ const config = {
     account: process.env.ILP_SERVICE_ADMIN_ACCOUNT,
     password: process.env.ILP_SERVICE_ADMIN_PASSWORD,
   },
-  receiverConnector: {
-    address: process.env.ILP_SERVICE_LEDGER_CONNECTOR_ADDRESS,
-    account: process.env.ILP_SERVICE_RECEIVER_CONNECTOR_ACCOUNT,
-    password: process.env.ILP_SERVICE_RECEIVER_CONNECTOR_PASSWORD
+  centralConnector: {
+    account: process.env.ILP_SERVICE_CENTRAL_CONNECTOR_ACCOUNT,
+    password: process.env.ILP_SERVICE_CENTRAL_CONNECTOR_PASSWORD
   },
   connector: process.env.ILP_SERVICE_CONNECTOR_ACCOUNT,
   port: process.env.ILP_SERVICE_PORT || 4000,

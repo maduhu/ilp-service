@@ -34,9 +34,8 @@ The `ilp-service` is configured using environment variables.
 | `ILP_SERVICE_LEDGER_ADMIN_USERNAME` | String | Admin username. Used to enable the `ilp-service` to send quote requests and transfers on behalf of DFSP account holders. |
 | `ILP_SERVICE_LEDGER_ADMIN_PASSWORD` | String | Admin password. Used to enable the `ilp-service` to send quote requests and transfers on behalf of DFSP account holders. |
 | `ILP_SERVICE_CONNECTOR_ACCOUNT` | URI | Ledger account URI of the connector used to send Interledger payments. |
-| `ILP_SERVICE_CONNECTOR_LEDGER_ADDRESS` | ILP Address | The ILP address of the connector on the receiving ledger (the same ledger that admin is on). |
-| `ILP_SERVICE_RECEIVER_CONNECTOR_ACCOUNT` | URI | Account URI of the connector on the penultimate ledger (the ledger one hop before the ledger that the admin is on). |
-| `ILP_SERVICE_RECIEVER_CONNECTOR_PASSWORD` | String | Account URI of the connector on the penultimate ledger (the ledger one hop before the ledger that the admin is on). |
+| `ILP_SERVICE_CENTRAL_CONNECTOR_ACCOUNT` | URI | Account URI of the connector on the ledger one hop before the ledger that the admin is on). |
+| `ILP_SERVICE_CENTRAL_CONNECTOR_PASSWORD` | String | Account URI of the connector on the ledger one hop before the ledger that the admin is on). |
 | `ILP_SERVICE_BACKEND` | URI | Backend server to send notifications to. See [Backend Notifications](#backend-notifications). |
 
 **TODO:** Should the `ilp-service` be configured with a secret to use for condition generation or should it generate one?

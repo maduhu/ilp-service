@@ -34,12 +34,12 @@ module.exports = async function app (config) {
     throw new Error('missing admin username (ILP_SERVICE_ADMIN_ACCOUNT)')
   } else if (!config.port) {
     throw new Error('missing config port')
-  } else if (!config.receiverConnector.account) {
-    throw new Error('missing connector account (ILP_SERVICE_RECEIVER_CONNECTOR_ACCOUNT)')
-  } else if (!config.receiverConnector.password) {
-    throw new Error('missing connector password (ILP_SERVICE_RECEIVER_CONNECTOR_PASSWORD)')
-  } else if (!config.receiverConnector.address) {
-    throw new Error('missing connector ILP address (ILP_SERVICE_LEDGER_CONNECTOR_ADDRESS)')
+  } else if (!config.connector) {
+    throw new Error('missing connector account (ILP_SERVICE_CONNECTOR_ACCOUNT)')
+  } else if (!config.centralConnector.account) {
+    throw new Error('missing connector account (ILP_SERVICE_CENTRAL_CONNECTOR_ACCOUNT)')
+  } else if (!config.centralConnector.password) {
+    throw new Error('missing connector password (ILP_SERVICE_CENTRAL_CONNECTOR_PASSWORD)')
   }
 
   const server = new Koa()
@@ -47,8 +47,8 @@ module.exports = async function app (config) {
   const parser = BodyParser()
   const cache = new Cache()
   const connector = new PluginBells({
-    account: config.receiverConnector.account,
-    password: config.receiverConnector.password
+    account: config.centralConnector.account,
+    password: config.centralConnector.password
   })
 
   const factory = new PluginBells.Factory({

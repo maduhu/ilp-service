@@ -20,7 +20,7 @@ describe('/quoteSourceAmount', () => {
     this.ctx.query = {
       destinationAddress: 'example.red.bob',
       sourceAmount: '10.00',
-      connectorAccount: 'example.red.connie',
+      connectorAccount: 'http://example.com/accounts/connie',
       destinationScale: '9',
     }
   })
@@ -88,7 +88,7 @@ describe('/quoteSourceAmount', () => {
     this.ctx.query.destinationAddress = 'example.blue.alice'
     this.factory.plugin.sendMessage = (msg) => {
       assert.equal(msg.ledger, 'example.red.')
-      assert.equal(msg.to, 'example.red.alice')
+      assert.equal(msg.to, 'example.red.connie')
       assert.equal(msg.data.method, 'quote_request')
       setImmediate(() => {
         this.factory.plugin.emit('incoming_message', {
