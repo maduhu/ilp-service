@@ -30,7 +30,6 @@ The `ilp-service` is configured using environment variables. For deployment, [IL
 |:------------------------------------|:-------------------|:------------------|
 | `ILP_SERVICE_PORT`                  | Number             | Port to run the ILP Service on. |
 | `ILP_SERVICE_ILP_PREFIX`            | ILP Address Prefix | ILP address prefix for the DFSP. This SHOULD start with `private.` |
-| `ILP_SERVICE_LEDGER_ROOT`           | [URI][]            | Base URI of the DFSP ledger. This SHOULD be an HTTPS URL where the [ledger's Get Metadata method](https://github.com/LevelOneProject/Docs/blob/master/ILP/ledger-adapter.md#get-server-metadata) is served. |
 | `ILP_SERVICE_LEDGER_ADMIN_ACCOUNT`  | [URI][]            | Admin ledger account URI. Used to enable the `ilp-service` to send quote requests and transfers on behalf of DFSP account holders. |
 | `ILP_SERVICE_LEDGER_ADMIN_USERNAME` | String             | Admin username. Used to enable the `ilp-service` to send quote requests and transfers on behalf of DFSP account holders. |
 | `ILP_SERVICE_LEDGER_ADMIN_PASSWORD` | String             | Admin password. Used to enable the `ilp-service` to send quote requests and transfers on behalf of DFSP account holders. |
