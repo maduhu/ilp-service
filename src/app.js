@@ -2,10 +2,10 @@ const Koa = require('koa')
 const Router = require('koa-router')
 const BodyParser = require('koa-bodyparser')
 const PluginBells = require('ilp-plugin-bells')
-const Cache = require('./lib/cache')
 const utils = require('./utils')
 const debug = require('debug')('ilp-service')
 
+const { listenAll } = require('./lib/listen-all')
 const quoteSourceAmount = require('./controllers/quote-source-amount')
 const quoteIPR = require('./controllers/quote-ipr')
 const payments = require('./controllers/pay-ipr')
@@ -23,15 +23,15 @@ module.exports = async function app (config) {
     throw new Error('ILP prefix (ILP_SERVICE_ILP_PREFIX) (' + config.ilp_prefix + ') ' +
       'is an invalid ILP prefix')
   } else if (!config.backend_url) {
-    throw new Error('missing backend URL (ILP_SERVICE_BACKEND_URL)')
+    throw new Error('missing backend URL (ILP_SERVICE_BACKEND)')
   } else if (!config.admin) {
     throw new Error('missing config.admin credentials object')
   } else if (!config.admin.username) {
-    throw new Error('missing admin username (ILP_SERVICE_ADMIN_USERNAME)')
+    throw new Error('missing admin username (ILP_SERVICE_LEDGER_ADMIN_USERNAME)')
   } else if (!config.admin.password) {
-    throw new Error('missing admin username (ILP_SERVICE_ADMIN_PASSWORD)')
+    throw new Error('missing admin username (ILP_SERVICE_LEDGER_ADMIN_PASSWORD)')
   } else if (!config.admin.account) {
-    throw new Error('missing admin username (ILP_SERVICE_ADMIN_ACCOUNT)')
+    throw new Error('missing admin username (ILP_SERVICE_LEDGER_ADMIN_ACCOUNT)')
   } else if (!config.port) {
     throw new Error('missing config port')
   } else if (!config.connector) {
@@ -45,7 +45,6 @@ module.exports = async function app (config) {
   const server = new Koa()
   const router = Router()
   const parser = BodyParser()
-  const cache = new Cache()
   const connector = new PluginBells({
     account: config.centralConnector.account,
     password: config.centralConnector.password
@@ -55,7 +54,8 @@ module.exports = async function app (config) {
     adminUsername: config.admin.username,
     adminAccount: config.admin.account,
     adminPassword: config.admin.password,
-    prefix: config.ilp_prefix
+    prefix: config.ilp_prefix,
+    globalSubscription: true
   })
 
   debug('connecting factory')
@@ -67,13 +67,16 @@ module.exports = async function app (config) {
   router.get('/ilpAddress', ilpAddress.bind(null, config, factory))
 
   router.post('/payIPR', payments.bind(null, config, factory))
-  router.post('/createIPR', createIPR.bind(null, config, factory, cache, connector))
+  router.post('/createIPR', createIPR.bind(null, config, factory))
 
   server
     .use(parser)
     .use(router.routes())
     .use(router.allowedMethods())
     .listen(config.port)
+
+  // Listen to all ledger accounts at once
+  await listenAll(config, factory, connector)
 
   debug('listening on ' + config.port)
 }
