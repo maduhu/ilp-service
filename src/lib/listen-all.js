@@ -22,10 +22,10 @@ async function incomingPaymentCallback (config, factory, connectorAddress, conne
   }
 
   const destinationAccount = utils.addressToAccount(config, factory, transfer.to, thrower)
-  const ipr = ILP.IPR.encodeIPR({
+  const ipr = utils.base64url(ILP.IPR.encodeIPR({
     packet: transfer.ilp,
     condition: transfer.executionCondition
-  })
+  }))
 
   debug('L1p-Trace-Id=' + paymentId, 'incoming prepare, transfer:', transfer, 'ipr:', ipr)
   debug('L1p-Trace-Id=' + paymentId, 'submitting prepare notification to backend for review')

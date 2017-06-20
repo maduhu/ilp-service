@@ -1,8 +1,10 @@
 'use strict'
 const EventEmitter = require('events')
 
-module.exports = class MockFactory {
+module.exports = class MockFactory extends EventEmitter {
   constructor (opts) {
+    super()
+
     this.ledgerContext = {}
     this.ledgerContext.accountUriToName = function (account) {
       if (account) return account.split('/').slice(-1)[0]

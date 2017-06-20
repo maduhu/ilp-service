@@ -1,6 +1,5 @@
 const ILP = require('ilp')
 const debug = require('debug')('ilp-service:create-ipr')
-const agent = require('superagent')
 const utils = require('../utils')
 
 module.exports = async function createIPR (config, factory, ctx) {
