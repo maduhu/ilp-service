@@ -5,6 +5,7 @@ const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 const assert = chai.assert
 
+const IlpPacket = require('ilp-packet')
 const ILP = require('ilp')
 const utils = require('../src/utils')
 const MockFactory = require('./mocks/mockFactory')
@@ -67,31 +68,23 @@ describe('/quoteIpr', () => {
     assert.deepEqual(this.ctx.body, {
       sourceAmount: '0.1',
       connectorAccount: 'http://example.com/accounts/bob',
-      sourceExpiryDuration: 10
+      sourceExpiryDuration: '10'
     })
   })
 
   it('should quote to connector account', async function () {
-    this.factory.plugin.sendMessage = (msg) => {
+    this.factory.plugin.sendRequest = (msg) => {
       assert.equal(msg.ledger, 'example.red.')
       assert.equal(msg.to, 'example.red.connie')
-      assert.equal(msg.data.method, 'quote_request')
-      setImmediate(() => {
-        this.factory.plugin.emit('incoming_message', {
-          ledger: 'example.red.',
-          to: 'example.red.bob',
-          data: {
-            method: 'quote_response',
-            id: msg.data.id,
-            data: {
-              source_amount: '200000',
-              source_connector_account: 'example.red.connie',
-              destination_address: 'example.blue.bob'
-            }
-          },
+      return Promise.resolve({
+        ledger: 'example.red.',
+        to: 'example.red.bob',
+        from: 'example.red.connie',
+        ilp: IlpPacket.serializeIlqpByDestinationResponse({
+          sourceAmount: '200000',
+          sourceHoldDuration: 10000
         })
       })
-      return Promise.resolve()
     }
 
     await quoteIpr(this.config, this.factory, this.ctx)
@@ -99,7 +92,7 @@ describe('/quoteIpr', () => {
     assert.deepEqual(this.ctx.body, {
       sourceAmount: '20',
       connectorAccount: 'http://example.com/accounts/connie',
-      sourceExpiryDuration: 10
+      sourceExpiryDuration: '10'
     })
   })
 })

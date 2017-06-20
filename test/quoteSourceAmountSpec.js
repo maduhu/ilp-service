@@ -4,6 +4,7 @@ const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 const assert = chai.assert
+const IlpPacket = require('ilp-packet')
 
 const MockFactory = require('./mocks/mockFactory')
 const MockCtx = require('./mocks/mockCtx')
@@ -80,32 +81,24 @@ describe('/quoteSourceAmount', () => {
     assert.deepEqual(this.ctx.body, {
       destinationAmount: '0.0001',
       connectorAccount: 'http://example.com/accounts/bob',
-      sourceExpiryDuration: 10
+      sourceExpiryDuration: '10'
     })
   })
 
   it('should quote to connector account', async function () {
     this.ctx.query.destinationAddress = 'example.blue.alice'
-    this.factory.plugin.sendMessage = (msg) => {
+    this.factory.plugin.sendRequest = (msg) => {
       assert.equal(msg.ledger, 'example.red.')
       assert.equal(msg.to, 'example.red.connie')
-      assert.equal(msg.data.method, 'quote_request')
-      setImmediate(() => {
-        this.factory.plugin.emit('incoming_message', {
-          ledger: 'example.red.',
-          to: 'example.red.bob',
-          data: {
-            method: 'quote_response',
-            id: msg.data.id,
-            data: {
-              destination_amount: '200000',
-              source_connector_account: 'example.red.connie',
-              destination_address: 'example.blue.alice'
-            }
-          },
+      return Promise.resolve({
+        ledger: 'example.red.',
+        to: 'example.red.bob',
+        from: 'example.red.connie',
+        ilp: IlpPacket.serializeIlqpBySourceResponse({
+          destinationAmount: '200000',
+          sourceHoldDuration: 10000
         })
       })
-      return Promise.resolve()
     }
 
     await quoteSourceAmount(this.config, this.factory, this.ctx)
@@ -113,7 +106,7 @@ describe('/quoteSourceAmount', () => {
     assert.deepEqual(this.ctx.body, {
       destinationAmount: '0.0002',
       connectorAccount: 'http://example.com/accounts/connie',
-      sourceExpiryDuration: 10
+      sourceExpiryDuration: '10'
     })
   })
 })
