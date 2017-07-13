@@ -1,6 +1,6 @@
 {
   "name": "@leveloneproject/ilp-service",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "> An ILP sending and receiving client with a REST API.",
   "main": "index.js",
   "dependencies": {
