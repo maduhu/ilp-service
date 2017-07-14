@@ -47,6 +47,7 @@ module.exports = async function app (config) {
   const parser = BodyParser()
   const connector = new PluginBells({
     account: config.centralConnector.account,
+    username: config.centralConnector.username,
     password: config.centralConnector.password
   })
 
@@ -60,6 +61,9 @@ module.exports = async function app (config) {
 
   debug('connecting factory')
   await factory.connect()
+
+  debug('connecting connector')
+  await connector.connect()
 
   debug('creating routes')
   router.get('/quoteSourceAmount', quoteSourceAmount.bind(null, config, factory))

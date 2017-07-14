@@ -17,6 +17,7 @@ const config = {
   },
   centralConnector: {
     account: process.env.ILP_SERVICE_CENTRAL_CONNECTOR_ACCOUNT,
+    username: process.env.ILP_SERVICE_CENTRAL_CONNECTOR_USERNAME,
     password: process.env.ILP_SERVICE_CENTRAL_CONNECTOR_PASSWORD
   },
   connector: process.env.ILP_SERVICE_CONNECTOR_ACCOUNT,
