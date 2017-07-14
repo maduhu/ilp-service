@@ -48,7 +48,8 @@ module.exports = async function app (config) {
   const connector = new PluginBells({
     account: config.centralConnector.account,
     username: config.centralConnector.username,
-    password: config.centralConnector.password
+    password: config.centralConnector.password,
+    prefix: config.centralConnector.prefix
   })
 
   const factory = new PluginBells.Factory({

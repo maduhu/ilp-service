@@ -18,7 +18,8 @@ const config = {
   centralConnector: {
     account: process.env.ILP_SERVICE_CENTRAL_CONNECTOR_ACCOUNT,
     username: process.env.ILP_SERVICE_CENTRAL_CONNECTOR_USERNAME,
-    password: process.env.ILP_SERVICE_CENTRAL_CONNECTOR_PASSWORD
+    password: process.env.ILP_SERVICE_CENTRAL_CONNECTOR_PASSWORD,
+    prefix: process.env.ILP_SERVICE_CENTRAL_CONNECTOR_PREFIX
   },
   connector: process.env.ILP_SERVICE_CONNECTOR_ACCOUNT,
   port: process.env.ILP_SERVICE_PORT || 4000,
