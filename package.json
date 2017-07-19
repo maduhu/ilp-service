@@ -7,7 +7,7 @@
     "bignumber.js": "^4.0.2",
     "debug": "^2.6.8",
     "ilp": "^11.1.0",
-    "ilp-plugin-bells": "^14.4.2",
+    "ilp-plugin-bells": "^15.0.0",
     "koa": "^2.2.0",
     "koa-bodyparser": "^4.2.0",
     "koa-router": "^7.1.1",
