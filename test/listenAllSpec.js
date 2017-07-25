@@ -67,6 +67,47 @@ describe('listenAll', () => {
       /public header Payment-Id is an invalid uuid/)
   })
 
+  it('should send data to the backend', async function () {
+    this.incomingOpts.data = Buffer.from(JSON.stringify({ foo: 'bar' }))
+
+    const fulfilled = new Promise((res) => this.factory.on('incoming_fulfill', res))
+    nock('http://ledger.example') // on payment prepare
+      .post('/backend/notifications', {
+        paymentId: "85a0ca0a-99cf-a40d-0c8c-5000de998a20",
+        ipr: "AorZxvJw6MFfEOVSeocBIXOUetaIkjUIIJsSPDbxej4SIEUApnz9kE_QtIEAKHcz7g5dYreJQC9rZ3nOnoVhDSKA",
+        destinationAccount: "http://example.com/accounts/alice",
+        data: { foo: 'bar' },
+        status: "prepared" })
+      .reply(200)
+    
+    nock('http://ledger.example') // on payment fulfill
+      .post('/backend/notifications')
+      .reply(200)
+
+    await this.incomingCallback(this.incomingOpts)
+    await fulfilled
+  })
+
+  it('should not send data to the backend if it is not JSON-parseable', async function () {
+    this.incomingOpts.data = Buffer.from('undefined')
+
+    const fulfilled = new Promise((res) => this.factory.on('incoming_fulfill', res))
+    nock('http://ledger.example') // on payment prepare
+      .post('/backend/notifications', {
+        paymentId: "85a0ca0a-99cf-a40d-0c8c-5000de998a20",
+        ipr: "AorZxvJw6MFfEOVSeocBIXOUetaIkjUIIJsSPDbxej4SIEUApnz9kE_QtIEAKHcz7g5dYreJQC9rZ3nOnoVhDSKA",
+        destinationAccount: "http://example.com/accounts/alice",
+        status: "prepared" })
+      .reply(200)
+    
+    nock('http://ledger.example') // on payment fulfill
+      .post('/backend/notifications')
+      .reply(200)
+
+    await this.incomingCallback(this.incomingOpts)
+    await fulfilled
+  })
+
   it('should notify backend and fulfill', async function () {
     const fulfilled = new Promise((res) => this.factory.on('incoming_fulfill', res))
     nock('http://ledger.example') // on payment prepare

@@ -3,7 +3,7 @@ const debug = require('debug')('ilp-service:create-ipr')
 const utils = require('../utils')
 
 module.exports = async function createIPR (config, factory, ctx) {
-  const { paymentId, destinationAccount, destinationAmount, expiresAt } = ctx.request.body
+  const { paymentId, destinationAccount, destinationAmount, expiresAt, data } = ctx.request.body
   debug('call to /createIPR with body', ctx.request.body)
 
   if (!paymentId) {
@@ -30,6 +30,7 @@ module.exports = async function createIPR (config, factory, ctx) {
     destinationAccount: destinationAddress,
     publicHeaders: { 'Payment-Id': paymentId },
     disableEncryption: true,
+    data: data && Buffer.from(JSON.stringify(data)),
     expiresAt
   }))
 

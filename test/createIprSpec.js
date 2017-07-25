@@ -73,9 +73,19 @@ describe('/createIpr', () => {
       /400.*paymentId \(193042342\-423523\-42432\-4324\) is an invalid uuid/)
   })
 
+  it('should return an IPR with data provided', async function () {
+    this.ctx.request.body.data = { foo: 'bar' }
+    await createIpr(this.config, this.factory, this.ctx),
+    assert.isString(this.ctx.body.ipr)
+    console.log(this.ctx.body.ipr.length)
+    assert.match(this.ctx.body.ipr, /^[A-Za-z\-_0-9]+$/)
+    assert.equal(this.ctx.body.ipr.length, 343)
+  })
+
   it('should return an IPR', async function () {
     await createIpr(this.config, this.factory, this.ctx),
     assert.isString(this.ctx.body.ipr)
     assert.match(this.ctx.body.ipr, /^[A-Za-z\-_0-9]+$/)
+    assert.equal(this.ctx.body.ipr.length, 326)
   })
 })

@@ -12,13 +12,21 @@ async function incomingPaymentCallback (config, factory, connectorAddress, conne
   transfer,
   publicHeaders,
   fulfill,
-  fulfillment
+  fulfillment,
+  data
 }) {
   const paymentId = publicHeaders['payment-id']
   if (!paymentId) {
     throw new Error('missing public header Payment-Id')
   } else if (!paymentId.match(utils.UUID_REGEX)) {
     throw new Error('public header Payment-Id is an invalid uuid')
+  }
+
+  let parsedData
+  try {
+    parsedData = JSON.parse(data.toString())
+  } catch (e) {
+    parsedData = undefined
   }
 
   const destinationAccount = utils.addressToAccount(config, factory, transfer.to, thrower)
@@ -31,7 +39,7 @@ async function incomingPaymentCallback (config, factory, connectorAddress, conne
   debug('L1p-Trace-Id=' + paymentId, 'submitting prepare notification to backend for review')
   await agent
     .post(config.backend_url + '/notifications')
-    .send({ paymentId, ipr, destinationAccount, status: 'prepared' })
+    .send({ paymentId, ipr, destinationAccount, data: parsedData, status: 'prepared' })
     .catch((e) => { throw new Error(e.response ? e.response.error.text : e.message) })
 
   if (transfer.from.startsWith(connectorAddress)) {
@@ -46,7 +54,7 @@ async function incomingPaymentCallback (config, factory, connectorAddress, conne
   debug('L1p-Trace-Id=' + paymentId, 'submitting execute notification to backend')
   await agent
     .post(config.backend_url + '/notifications')
-    .send({ fulfillment, paymentId, ipr, destinationAccount, status: 'executed' })
+    .send({ fulfillment, paymentId, ipr, destinationAccount, data: parsedData, status: 'executed' })
 }
 
 async function listenAll (config, factory, connector) {

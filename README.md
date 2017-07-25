@@ -178,6 +178,7 @@ The request includes the following query string parameters:
 | `destinationAccount` | [URI][]        | Ledger account URI of the account into which the funds will be paid. |
 | `destinationAmount`  | Decimal String | The requested amount, which will be paid into the `destinationAccount`. |
 | `expiresAt`          | ISO Timestamp  | Expiration of the payment request. Incoming transfers received after this time will be automatically rejected. |
+| `data`               | Object         | (Optional) Arbitrary JSON data to attach to the IPR. |
 
 **TODO:** Would you rather pass in the absolute ISO timestamp or the relative time in seconds?
 
@@ -240,6 +241,7 @@ The message body of the Notification request is a JSON Object with the following
 | `destinationAccount` | [URI][]                                | Ledger account URI of the account into which the funds will be paid if the transfer is executed. |
 | `status`             | String. One of: `prepared`, `executed` | The status of the payment. See below for more details. |
 | `fulfillment`        | Base64-URL String                      | _(Only present when status is `executed`.)_ This is the cryptographic fulfillment used to execute the incoming transfer. |
+| `data`               | Object                                 | _(Only present when `data` was passed into the corresponding createIPR call)_ Arbitrary JSON data attached to the IPR. |
 
 ##### Transfer Status Descriptions
 
