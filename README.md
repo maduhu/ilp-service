@@ -1,5 +1,5 @@
 # ilp-service
-> An ILP sending and receiving client with a RESTful(ish) API.
+> An Interledge Protocol (ILP) sending and receiving client with a RESTful(ish) API.
 
 The `ilp-service` is designed to be used to build Interledger-capable systems on top of the [Interledger Payment Request (IPR)][] transport protocol. For more details on the Interledger protocol suite layers, see [IL-RFC 1: Interledger Architecture][].
 
@@ -29,7 +29,7 @@ The `ilp-service` is configured using environment variables. For deployment, [IL
 | Environment Variable                | Type               | Description       |
 |:------------------------------------|:-------------------|:------------------|
 | `ILP_SERVICE_PORT`                  | Number             | Port to run the ILP Service on. |
-| `ILP_SERVICE_ILP_PREFIX`            | ILP Address Prefix | ILP address prefix for the DFSP. This SHOULD start with `private.` |
+| `ILP_SERVICE_ILP_PREFIX`            | ILP Address Prefix | ILP address prefix for the DFSP. This should start with `private.` |
 | `ILP_SERVICE_LEDGER_ADMIN_ACCOUNT`  | [URI][]            | Admin ledger account URI. Used to enable the `ilp-service` to send quote requests and transfers on behalf of DFSP account holders. |
 | `ILP_SERVICE_LEDGER_ADMIN_USERNAME` | String             | Admin username. Used to enable the `ilp-service` to send quote requests and transfers on behalf of DFSP account holders. |
 | `ILP_SERVICE_LEDGER_ADMIN_PASSWORD` | String             | Admin password. Used to enable the `ilp-service` to send quote requests and transfers on behalf of DFSP account holders. |
@@ -74,9 +74,9 @@ The request must include the following query string parameters:
 
 | Parameter            | Type           | Description                          |
 |:---------------------|:---------------|:-------------------------------------|
-| `destinationAddress` | ILP Address    | ILP Address for the destination. **Note: This must be communicated in the Application Layer protocol to enable the sender to request quotes with fixed source amounts.** |
+| `destinationAddress` | ILP Address    | ILP Address for the destination.<br/>**Note:** This must be communicated in the Application Layer protocol to enable the sender to request quotes with fixed source amounts.|
 | `sourceAmount`       | Decimal String | Amount the source account would send to the connector, denominated in the currency of the source ledger. |
-| `destinationScale`   | Integer        | Scale of the amounts on the destination ledger. Used to format the `destinationAmount` in the return value. This SHOULD be reported by the ledger, for example in a [Get Metdata Method](https://github.com/LevelOneProject/Docs/blob/master/ILP/ledger-adapter.md#get-server-metadata) **Note: This must be communicated in the Application Layer protocol. If this value is incorrect, the result will be off by several orders of magnitude** |
+| `destinationScale`   | Integer        | Scale of the amounts on the destination ledger. Used to format the `destinationAmount` in the return value. This SHOULD be reported by the ledger, for example in a [Get Metdata Method](https://github.com/LevelOneProject/Docs/blob/master/ILP/ledger-adapter.md#get-server-metadata)<br/>**Note:** This must be communicated in the Application Layer protocol. If this value is incorrect, the result will be off by several orders of magnitude. |
 | `connectorAccount`   | [URI][]        | _(Optional)_ Ledger account URI of a connector to send the quote request to. If omitted, `ilp-service` uses the connector(s) defined in its config. |
 
 #### quoteSourceAmount Response
@@ -240,8 +240,8 @@ The message body of the Notification request is a JSON Object with the following
 | `paymentId`          | UUID String                            | Unique ID of the payment request. This is the same value that was submitted when the IPR was created. |
 | `destinationAccount` | [URI][]                                | Ledger account URI of the account into which the funds will be paid if the transfer is executed. |
 | `status`             | String. One of: `prepared`, `executed` | The status of the payment. See below for more details. |
-| `fulfillment`        | Base64-URL String                      | _(Only present when status is `executed`.)_ This is the cryptographic fulfillment used to execute the incoming transfer. |
-| `data`               | Object                                 | _(Only present when `data` was passed into the corresponding createIPR call)_ Arbitrary JSON data attached to the IPR. |
+| `fulfillment`        | Base64-URL String                      | This is the cryptographic fulfillment used to execute the incoming transfer. <br/>(Only present when status is `executed`.) |
+| `data`               | Object                                 | Arbitrary JSON data attached to the IPR. <br/>(Only present when `data` was passed into the corresponding createIPR call)  |
 
 ##### Transfer Status Descriptions
 
@@ -249,7 +249,7 @@ The `status` field of the payment is one of the following values:
 
 | Status     | Description                                                     |
 |:-----------|:----------------------------------------------------------------|
-| `prepared` | Funds are on hold and the `ilp-service` is awaiting approval from the backend before fulfilling the transfer condition. The transfer will only be fulfilled if the backend responds to this notification with the HTTP status code 200 OK. |
+| `prepared` | Funds are on hold and the `ilp-service` is awaiting approval from the backend before fulfilling the transfer condition. The transfer will only be fulfilled if the backend responds to this notification with the HTTP status code **200 OK**. |
 | `executed` | The incoming transfer has been executed and the `destinationAccount` has been paid. The transfer has a `fulfillment` field, which contains the cryptographic fulfillment used to execute the incoming transfer. |
 
 ### Notification Response
@@ -277,7 +277,7 @@ Running the tests:
 
     npm run test
 
-Tests include code coverage via [istanbul](https://www.npmjs.com/package/istanbul) and unit tests via [mocha](https://www.npmjs.com/package/mocha). See the [test/](test/) folder for testing scripts.
+Tests include code coverage via [istanbul](https://www.npmjs.com/package/istanbul) and unit tests via [mocha](https://www.npmjs.com/package/mocha). See the [**test/**](test/) folder for testing scripts.
 
 
 ## Notes for Application Layer Protocol Implementors
@@ -298,6 +298,6 @@ The Interledger Payment Request (IPR) includes a fixed destination amount, the d
 
 The IPR includes a fixed destination amount. The sender will get a quote from one or more connectors to determine the cost of delivering the specified amount to the receiver.
 
-If receiving DFSPs wish to implement additional fees, those can be included in the Application Layer protocol communication and deducted from the end recipient's account after transfers are executed.
+If receiving DFSPs want to implement additional fees, those can be included in the Application Layer protocol communication and deducted from the end recipient's account after transfers are executed.
 
-If sending DFSPs wish to implement additional fees, those can be added to the chosen source amount or the source amount determined by quoting an IPR. The fee amount can be deducted from the sender's account when the outgoing transfer is executed.
+If sending DFSPs want to implement additional fees, those can be added to the chosen source amount or the source amount determined by quoting an IPR. The fee amount can be deducted from the sender's account when the outgoing transfer is executed.
