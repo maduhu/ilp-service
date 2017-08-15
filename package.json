@@ -6,7 +6,7 @@
   "dependencies": {
     "bignumber.js": "^4.0.2",
     "debug": "^3.0.0",
-    "ilp": "^11.1.0",
+    "ilp": "^11.2.4",
     "ilp-plugin-bells": "^15.0.2",
     "koa": "^2.2.0",
     "koa-bodyparser": "^4.2.0",
