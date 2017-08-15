@@ -37,8 +37,8 @@ module.exports = async function createIPR (config, factory, ctx) {
   debug('L1p-Trace-Id=' + paymentId, 'created IPR', ipr, 'from params', {
     destinationAmount,
     destinationAccount,
-    publicHeaders,
-    disableEncryption,
+    publicHeaders: { 'Payment-Id': paymentId },
+    disableEncryption: true,
     data,
     expiresAt
   })
