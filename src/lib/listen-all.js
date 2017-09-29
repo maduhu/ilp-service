@@ -42,10 +42,10 @@ async function incomingPaymentCallback (config, factory, connectorAddress, conne
     .send({ paymentId, ipr, destinationAccount, data: parsedData, status: 'prepared' })
     .catch((e) => { throw new Error(e.response ? e.response.error.text : e.message) })
 
-  if (transfer.from.startsWith(connectorAddress)) {
-    debug('L1p-Trace-Id=' + paymentId, 'fulfilling connector source transfer')
-    await connector.fulfillCondition(transfer.id, fulfillment)
-  }
+  // if (transfer.from.startsWith(connectorAddress)) {
+  //   debug('L1p-Trace-Id=' + paymentId, 'fulfilling connector source transfer')
+  //   await connector.fulfillCondition(transfer.id, fulfillment)
+  // }
 
   debug('L1p-Trace-Id=' + paymentId, 'fulfilling destination transfer')
   await fulfill()
