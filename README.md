@@ -36,8 +36,8 @@ The `ilp-service` is configured using environment variables. For deployment, [IL
 | `ILP_SERVICE_CONNECTOR_ACCOUNT`     | [URI][]            | Ledger account URI of the connector used to send Interledger payments. |
 | `ILP_SERVICE_BACKEND`               | [URI][]            | Backend server to send notifications to. See [Backend Notifications](#backend-notifications). |
 | `ILP_SERVICE_SECRET`                | String             | _(Optional)_ Secret value used to create and verify IPRs as the receiver. If omitted, generates a random value on startup. |
-| `ILP_SERVICE_CENTRAL_CONNECTOR_ACCOUNT`  | [URI][]       | Account URI of the connector on the ledger one hop before the ledger that the admin is on. |
-| `ILP_SERVICE_CENTRAL_CONNECTOR_PASSWORD` | String        | Account URI of the connector on the ledger one hop before the ledger that the admin is on). |
+| `ILP_SERVICE_CENTRAL_CONNECTOR_ACCOUNT`  | [URI][]       | Account URI of the connector on the ledger one hop before the ledger that the admin is on (the IST or Central Ledger). |
+| `ILP_SERVICE_CENTRAL_CONNECTOR_PASSWORD` | String        | Account password of the connector on the ledger one hop before the ledger that the admin is on (the IST or Central Ledger). |
 
 ### Ledger URIs
 [URI]: #ledger-uris
