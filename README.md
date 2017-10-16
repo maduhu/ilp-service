@@ -76,7 +76,8 @@ The request must include the following query string parameters:
 |:---------------------|:---------------|:-------------------------------------|
 | `destinationAddress` | ILP Address    | ILP Address for the destination.<br/>**Note:** This must be communicated in the Application Layer protocol to enable the sender to request quotes with fixed source amounts.|
 | `sourceAmount`       | Decimal String | Amount the source account would send to the connector, denominated in the currency of the source ledger. |
-| `destinationScale`   | Integer        | Scale of the amounts on the destination ledger. Used to format the `destinationAmount` in the return value. This SHOULD be reported by the ledger, for example in a [Get Metdata Method](https://github.com/LevelOneProject/Docs/blob/master/ILP/ledger-adapter.md#get-server-metadata)<br/>**Note:** This must be communicated in the Application Layer protocol. If this value is incorrect, the result will be off by several orders of magnitude. |
+| `destinationScale`   | Integer        | Scale of the amounts on the destination ledger. Used to format the `destinationAmount` in the return value. This SHOULD be reported by the ledger.
+(https://github.com/LevelOneProject/Docs/blob/master/ILP/ledger-adapter.md#get-server-metadata)<br/>**Note:** This must be communicated in the Application Layer protocol. If this value is incorrect, the result will be off by several orders of magnitude. |
 | `connectorAccount`   | [URI][]        | _(Optional)_ Ledger account URI of a connector to send the quote request to. If omitted, `ilp-service` uses the connector(s) defined in its config. |
 
 #### quoteSourceAmount Response
